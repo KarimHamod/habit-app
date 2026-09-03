@@ -38,7 +38,7 @@ export function HabitPerformanceList({
                 {item.currentStreak > 0 ? (
                   <span className="text-muted-foreground flex shrink-0 items-center gap-0.5 text-xs">
                     <Flame
-                      className="size-3 text-orange-500"
+                      className="text-coral size-3"
                       aria-hidden="true"
                     />
                     {item.currentStreak}

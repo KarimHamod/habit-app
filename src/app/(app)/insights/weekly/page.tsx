@@ -81,11 +81,11 @@ export default async function WeeklyReviewPage() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3 rounded-xl border p-4">
           <Flame
-            className="size-5 shrink-0 text-orange-500"
+            className="text-coral size-5 shrink-0"
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <p className="text-muted-foreground text-xs font-medium uppercase">
+            <p className="text-muted-foreground text-xs font-medium">
               Best streak
             </p>
             {review.bestStreak ? (
@@ -107,7 +107,7 @@ export default async function WeeklyReviewPage() {
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <p className="text-muted-foreground text-xs font-medium uppercase">
+            <p className="text-muted-foreground text-xs font-medium">
               Biggest improvement
             </p>
             {review.biggestImprovement ? (
@@ -129,7 +129,7 @@ export default async function WeeklyReviewPage() {
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <p className="text-muted-foreground text-xs font-medium uppercase">
+            <p className="text-muted-foreground text-xs font-medium">
               Needs attention
             </p>
             {review.needsAttention ? (
@@ -147,11 +147,11 @@ export default async function WeeklyReviewPage() {
 
         <div className="flex items-center gap-3 rounded-xl border p-4">
           <Trophy
-            className="size-5 shrink-0 text-amber-500"
+            className="text-amber size-5 shrink-0"
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <p className="text-muted-foreground text-xs font-medium uppercase">
+            <p className="text-muted-foreground text-xs font-medium">
               Goals
             </p>
             {review.goals.total > 0 ? (

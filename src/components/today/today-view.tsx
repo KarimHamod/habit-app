@@ -142,9 +142,9 @@ export function TodayView({
   const allComplete = total > 0 && completed === total;
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-24 md:max-w-2xl md:gap-8 md:p-8 md:pb-10">
       <div>
-        <p className="text-2xl font-bold tracking-tight">
+        <p className="font-display text-2xl font-semibold md:text-3xl">
           {GREETING_COPY[daypart]}
           {displayName ? `, ${displayName}` : ""}
         </p>
@@ -166,7 +166,7 @@ export function TodayView({
       ) : allComplete ? (
         <div
           role="status"
-          className="flex flex-col items-center gap-2 rounded-xl border p-10 text-center"
+          className="border-mint/30 bg-mint/10 flex flex-col items-center gap-2 rounded-3xl border p-10 text-center"
         >
           <p className="text-3xl" aria-hidden="true">
             🎉
@@ -175,7 +175,7 @@ export function TodayView({
           <p className="text-muted-foreground text-sm">Amazing work today.</p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
           {optimisticHabits.map((habit) => (
             <li key={habit.id}>
               <HabitCard

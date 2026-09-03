@@ -16,11 +16,13 @@ export function ProgressSummary({
   monthTrend,
 }: ProgressSummaryProps) {
   return (
-    <div className="rounded-xl border p-4">
-      <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-        Your Progress
+    <div className="border-border bg-card rounded-3xl border p-4">
+      <p className="text-muted-foreground text-sm font-medium">
+        Your progress
       </p>
-      <p className="mt-1 text-4xl font-bold">{Math.round(overallRate)}%</p>
+      <p className="font-display mt-1 text-4xl font-semibold">
+        {Math.round(overallRate)}%
+      </p>
       <p className="text-muted-foreground text-sm">
         Completion rate this month
       </p>

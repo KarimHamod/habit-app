@@ -38,7 +38,7 @@ const WEEKDAY_LABELS_SUN_FIRST = [
 
 const STATUS_ICON_COLOR: Record<DayAggregateStatus, string> = {
   complete: "text-primary",
-  partial: "text-amber-500",
+  partial: "text-amber",
   missed: "text-destructive",
   "none-scheduled": "text-transparent",
   future: "text-transparent",
@@ -168,7 +168,7 @@ export function CalendarView({
           <Check className="text-primary size-3" aria-hidden="true" /> Complete
         </span>
         <span className="flex items-center gap-1.5">
-          <Minus className="size-3 text-amber-500" aria-hidden="true" /> Partial
+          <Minus className="text-amber size-3" aria-hidden="true" /> Partial
         </span>
         <span className="flex items-center gap-1.5">
           <X className="text-destructive size-3" aria-hidden="true" /> Missed

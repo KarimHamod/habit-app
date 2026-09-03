@@ -109,12 +109,12 @@ export function HabitDetailView({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col items-center gap-1 rounded-xl border p-4 text-center">
-          <Flame className="size-5 text-orange-500" aria-hidden="true" />
+          <Flame className="text-coral size-5" aria-hidden="true" />
           <p className="text-2xl font-bold">{stats.currentStreak}</p>
           <p className="text-muted-foreground text-xs">Current streak</p>
         </div>
         <div className="flex flex-col items-center gap-1 rounded-xl border p-4 text-center">
-          <Trophy className="size-5 text-amber-500" aria-hidden="true" />
+          <Trophy className="text-amber size-5" aria-hidden="true" />
           <p className="text-2xl font-bold">{stats.longestStreak}</p>
           <p className="text-muted-foreground text-xs">Longest streak</p>
         </div>

@@ -206,7 +206,7 @@ export function HabitForm({
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6 p-4">
       <div>
-        <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+        <p className="text-muted-foreground text-sm font-medium">
           Step {stepIndex + 1} of {stepOrder.length}
         </p>
         <h1 className="mt-1 text-xl font-bold">{STEP_LABELS[step]}</h1>
