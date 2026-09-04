@@ -104,4 +104,13 @@ describe("habitSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts an icon and leaves it optional", () => {
+    expect(habitSchema.safeParse(baseInput).success).toBe(true);
+    const result = habitSchema.safeParse({ ...baseInput, icon: "📚" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.icon).toBe("📚");
+    }
+  });
 });

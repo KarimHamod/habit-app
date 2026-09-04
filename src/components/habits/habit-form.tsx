@@ -26,12 +26,14 @@ import {
   type HabitFormStep,
 } from "@/lib/habits/form-steps";
 import { describeFrequency } from "@/lib/habits/format";
+import { getDefaultIconForCategory, HABIT_ICON_OPTIONS } from "@/lib/habits/icons";
 import { habitSchema, type HabitInput } from "@/lib/habits/validation";
+import { cn } from "@/lib/utils";
 
 import { NewCategoryDialog } from "./new-category-dialog";
 
 const STEP_FIELDS: Record<HabitFormStep, (keyof HabitInput)[]> = {
-  basics: ["name", "description", "categoryId", "color"],
+  basics: ["name", "description", "categoryId", "icon", "color"],
   frequency: ["frequencyType", "daysOfWeek", "timesPerPeriod"],
   type: ["type"],
   target: ["target", "unit"],
@@ -123,6 +125,7 @@ export function HabitForm({
     trigger,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<HabitInput>({
     // @hookform/resolvers@5.9.1's bundled `Resolver` type structurally
@@ -252,9 +255,18 @@ export function HabitForm({
                 render={({ field }) => (
                   <Select
                     value={field.value ?? "none"}
-                    onValueChange={(value) =>
-                      field.onChange(value === "none" ? undefined : value)
-                    }
+                    onValueChange={(value) => {
+                      field.onChange(value === "none" ? undefined : value);
+                      if (value !== "none" && !getValues("icon")) {
+                        const category = categories.find(
+                          (c) => c.id === value,
+                        );
+                        const defaultIcon = getDefaultIconForCategory(
+                          category?.name,
+                        );
+                        if (defaultIcon) setValue("icon", defaultIcon);
+                      }
+                    }}
                     items={{
                       none: "No category",
                       ...Object.fromEntries(
@@ -280,7 +292,62 @@ export function HabitForm({
                 onCreated={(category) => {
                   setCategories((prev) => [...prev, category]);
                   setValue("categoryId", category.id);
+                  if (!getValues("icon")) {
+                    const defaultIcon = getDefaultIconForCategory(
+                      category.name,
+                    );
+                    if (defaultIcon) setValue("icon", defaultIcon);
+                  }
                 }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Icon (optional)</Label>
+              <Controller
+                control={control}
+                name="icon"
+                render={({ field }) => (
+                  <div
+                    className="flex flex-wrap gap-2"
+                    role="radiogroup"
+                    aria-label="Habit icon"
+                  >
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={!field.value}
+                      aria-label="No icon (use initial letter)"
+                      onClick={() => field.onChange(undefined)}
+                      className={cn(
+                        "text-muted-foreground focus-visible:ring-ring flex size-9 items-center justify-center rounded-full border text-sm font-semibold ring-offset-2 outline-none focus-visible:ring-2",
+                        !field.value
+                          ? "border-foreground"
+                          : "border-border",
+                      )}
+                    >
+                      Aa
+                    </button>
+                    {HABIT_ICON_OPTIONS.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        role="radio"
+                        aria-checked={field.value === icon}
+                        aria-label={`Use icon ${icon}`}
+                        onClick={() => field.onChange(icon)}
+                        className={cn(
+                          "focus-visible:ring-ring flex size-9 items-center justify-center rounded-full border text-lg ring-offset-2 outline-none focus-visible:ring-2",
+                          field.value === icon
+                            ? "border-foreground"
+                            : "border-border",
+                        )}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                )}
               />
             </div>
 
