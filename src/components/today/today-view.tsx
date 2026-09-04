@@ -205,6 +205,14 @@ export function TodayView({
                       : { type: "complete", habitId: habit.id, value: next },
                   );
                 }}
+                onSetValue={(value) =>
+                  submit(
+                    habit,
+                    value <= 0
+                      ? { type: "uncomplete", habitId: habit.id }
+                      : { type: "complete", habitId: habit.id, value },
+                  )
+                }
               />
             </li>
           ))}

@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import type { TodayHabit } from "@/lib/habits/types";
 import { cn } from "@/lib/utils";
 
+import { AmountEntryDialog } from "./amount-entry-dialog";
+
 interface HabitCardProps {
   habit: TodayHabit;
   pending: boolean;
   onToggleBoolean: () => void;
   onIncrement: () => void;
   onDecrement: () => void;
+  onSetValue: (value: number) => void;
 }
 
 export function HabitCard({
@@ -20,6 +23,7 @@ export function HabitCard({
   onToggleBoolean,
   onIncrement,
   onDecrement,
+  onSetValue,
 }: HabitCardProps) {
   const accent = habit.color ?? "var(--color-muted-foreground)";
   const subtitle =
@@ -107,6 +111,15 @@ export function HabitCard({
         </Button>
       ) : (
         <div className="flex shrink-0 items-center gap-1">
+          <AmountEntryDialog
+            habitId={habit.id}
+            habitName={habit.name}
+            value={habit.value}
+            target={habit.target}
+            unit={habit.unit}
+            pending={pending}
+            onSave={onSetValue}
+          />
           <Button
             type="button"
             size="icon"
