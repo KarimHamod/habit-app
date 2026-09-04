@@ -77,7 +77,7 @@ export function HabitDetailView({
           }}
           aria-hidden="true"
         >
-          {habit.name.charAt(0).toUpperCase()}
+          {habit.icon ?? habit.name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold">{habit.name}</h1>

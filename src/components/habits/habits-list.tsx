@@ -43,6 +43,7 @@ export interface Category {
 export interface HabitRow {
   id: string;
   name: string;
+  icon: string | null;
   color: string | null;
   type: HabitType;
   frequency_type: FrequencyType;
@@ -242,7 +243,7 @@ export function HabitsList({
                     }}
                     aria-hidden="true"
                   >
-                    {habit.name.charAt(0).toUpperCase()}
+                    {habit.icon ?? habit.name.charAt(0).toUpperCase()}
                   </div>
 
                   <div className="min-w-0 flex-1">
