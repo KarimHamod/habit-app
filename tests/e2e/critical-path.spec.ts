@@ -93,3 +93,51 @@ test("critical path: create a habit, complete it, and see the streak", async ({
     await deleteAllHabits(page);
   }
 });
+
+test("critical path: log a duration habit by entering an amount directly", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+
+  await login(page);
+  await deleteAllHabits(page);
+
+  const habitName = `E2E Deep Work ${Date.now()}`;
+
+  try {
+    // Create a duration habit (target 60 minutes) through the full wizard.
+    await page.goto("/habits/new");
+    await page.getByLabel("Habit name").fill(habitName);
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // basics -> frequency
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // frequency (Daily, default) -> type
+    await page.getByRole("radio", { name: "Duration" }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // type -> target
+    await page.getByLabel("Target").fill("60");
+    await page.getByLabel("Unit").fill("minutes");
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // target -> schedule
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // schedule (today, default) -> review
+    await page.getByRole("button", { name: "Create Habit" }).click();
+    await page.waitForURL("/today");
+
+    // Open the direct amount entry dialog and log 45 of the 60-minute target.
+    const openDialog = page.getByRole("button", {
+      name: `Enter amount for ${habitName}`,
+    });
+    await expect(openDialog).toBeVisible();
+    await openDialog.click();
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("spinbutton").fill("45");
+    await dialog.getByRole("button", { name: "Save" }).click();
+    await expect(dialog).toBeHidden();
+
+    await expect(page.getByText("45 / 60 minutes")).toBeVisible();
+
+    // Reload — the logged value must persist server-side, not just optimistically.
+    await page.reload();
+    await expect(page.getByText("45 / 60 minutes")).toBeVisible();
+  } finally {
+    await deleteAllHabits(page);
+  }
+});
