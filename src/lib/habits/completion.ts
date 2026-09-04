@@ -21,6 +21,28 @@ export interface CompletionError {
   error: string;
 }
 
+/** Parses a direct-entry amount input; `null` for anything not a finite, non-negative number. */
+export function parseAmountInput(raw: string): number | null {
+  if (raw.trim() === "") return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) return null;
+  return value;
+}
+
+/**
+ * Quick-add preset amounts scaled to a habit's target (quarter/half/full),
+ * deduplicated and sorted — e.g. target 60 -> [15, 30, 60]. Empty for a
+ * habit with no positive target, since there's nothing sensible to scale to.
+ */
+export function buildQuickAddPresets(
+  target: number | null | undefined,
+): number[] {
+  if (!target || target <= 0) return [];
+  const raw = [target / 4, target / 2, target];
+  const rounded = raw.map((n) => Math.round(n * 100) / 100);
+  return Array.from(new Set(rounded)).sort((a, b) => a - b);
+}
+
 /**
  * Shapes and validates a completion write without touching the database —
  * kept pure so it's unit-testable. For quantity/duration habits, `completed`

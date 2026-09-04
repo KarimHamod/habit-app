@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCompletionPayload,
+  buildQuickAddPresets,
   calculateHabitProgress,
+  parseAmountInput,
 } from "@/lib/habits/completion";
 
 describe("calculateHabitProgress", () => {
@@ -95,5 +97,62 @@ describe("buildCompletionPayload", () => {
       completed: true,
       value: 0,
     });
+  });
+});
+
+describe("parseAmountInput", () => {
+  it("parses a valid integer", () => {
+    expect(parseAmountInput("45")).toBe(45);
+  });
+
+  it("parses a valid decimal", () => {
+    expect(parseAmountInput("2.5")).toBe(2.5);
+  });
+
+  it("accepts zero", () => {
+    expect(parseAmountInput("0")).toBe(0);
+  });
+
+  it("rejects an empty string", () => {
+    expect(parseAmountInput("")).toBeNull();
+  });
+
+  it("rejects a blank string", () => {
+    expect(parseAmountInput("   ")).toBeNull();
+  });
+
+  it("rejects a negative number", () => {
+    expect(parseAmountInput("-5")).toBeNull();
+  });
+
+  it("rejects non-numeric input", () => {
+    expect(parseAmountInput("abc")).toBeNull();
+  });
+});
+
+describe("buildQuickAddPresets", () => {
+  it("returns quarter/half/full of a typical target", () => {
+    expect(buildQuickAddPresets(60)).toEqual([15, 30, 60]);
+  });
+
+  it("keeps fractional presets for a small target", () => {
+    expect(buildQuickAddPresets(1)).toEqual([0.25, 0.5, 1]);
+  });
+
+  it("dedupes presets that round to the same value", () => {
+    expect(buildQuickAddPresets(0.01)).toEqual([0, 0.01]);
+  });
+
+  it("returns an empty list for a null target", () => {
+    expect(buildQuickAddPresets(null)).toEqual([]);
+  });
+
+  it("returns an empty list for an undefined target", () => {
+    expect(buildQuickAddPresets(undefined)).toEqual([]);
+  });
+
+  it("returns an empty list for a non-positive target", () => {
+    expect(buildQuickAddPresets(0)).toEqual([]);
+    expect(buildQuickAddPresets(-10)).toEqual([]);
   });
 });
