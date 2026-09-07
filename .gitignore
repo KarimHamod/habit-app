@@ -53,3 +53,11 @@ next-env.d.ts
 
 # graphify knowledge graph (local dev aid, not for version control)
 /graphify-out/
+
+# claude code: personal-machine config and locally-installed skill tooling
+# (settings.local.json is the personal-override file by convention; the
+# impeccable skill/agents pull in a ~16MB platform-specific compiled binary
+# under scripts/bin, not app source)
+/.claude/settings.local.json
+/.claude/skills/
+/.claude/agents/
