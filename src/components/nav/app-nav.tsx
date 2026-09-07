@@ -1,6 +1,12 @@
 "use client";
 
-import { BarChart3, CalendarDays, ListChecks, Sun } from "lucide-react";
+import {
+  BarChart3,
+  CalendarDays,
+  ListChecks,
+  Settings,
+  Sun,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/habits", label: "Habits", icon: ListChecks },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/insights", label: "Insights", icon: BarChart3 },
+  { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 function isActive(pathname: string, href: string) {
