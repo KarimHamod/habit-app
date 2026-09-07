@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { HabitAvatar } from "@/components/habits/habit-avatar";
 import type { HabitDetail } from "@/lib/habits/detail";
 import { describeFrequency } from "@/lib/habits/format";
 
@@ -70,15 +71,12 @@ export function HabitDetailView({
       </div>
 
       <div className="flex items-center gap-3">
-        <div
-          className="flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white"
-          style={{
-            backgroundColor: habit.color ?? "var(--color-muted-foreground)",
-          }}
-          aria-hidden="true"
-        >
-          {habit.icon ?? habit.name.charAt(0).toUpperCase()}
-        </div>
+        <HabitAvatar
+          icon={habit.icon}
+          name={habit.name}
+          color={habit.color}
+          size="lg"
+        />
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold">{habit.name}</h1>
           <p className="text-muted-foreground text-sm">
@@ -147,14 +145,20 @@ export function HabitDetailView({
                 {stats.thisMonth.completed} / {stats.thisMonth.scheduled}
               </span>
             </div>
-            <Progress value={stats.trend.thisMonthRate} />
+            <Progress
+              value={stats.trend.thisMonthRate}
+              aria-label="This month completion rate"
+            />
           </div>
           <div>
             <div className="text-muted-foreground mb-1 flex items-center justify-between text-xs">
               <span>Last month</span>
               <span>{Math.round(stats.trend.lastMonthRate)}%</span>
             </div>
-            <Progress value={stats.trend.lastMonthRate} />
+            <Progress
+              value={stats.trend.lastMonthRate}
+              aria-label="Last month completion rate"
+            />
           </div>
         </div>
         {stats.trend.lastMonthRate > 0 || stats.trend.thisMonthRate > 0 ? (

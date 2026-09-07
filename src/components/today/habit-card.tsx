@@ -3,6 +3,7 @@
 import { Check, Flame, Minus, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { HabitAvatar } from "@/components/habits/habit-avatar";
 import type { TodayHabit } from "@/lib/habits/types";
 import { cn } from "@/lib/utils";
 
@@ -49,13 +50,12 @@ export function HabitCard({
         style={{ backgroundColor: accent }}
       />
 
-      <div
-        className="flex size-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold text-white"
-        style={{ backgroundColor: accent }}
-        aria-hidden="true"
-      >
-        {habit.icon ?? habit.name.charAt(0).toUpperCase()}
-      </div>
+      <HabitAvatar
+        icon={habit.icon}
+        name={habit.name}
+        color={habit.color}
+        className="rounded-2xl"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{habit.name}</p>
@@ -88,9 +88,9 @@ export function HabitCard({
       {habit.type === "boolean" ? (
         <Button
           type="button"
-          size="icon"
+          size="icon-xl"
           variant={habit.completed ? "default" : "outline"}
-          className="size-9 shrink-0 rounded-full"
+          className="shrink-0 rounded-full"
           style={
             habit.completed
               ? { backgroundColor: accent, borderColor: accent }
@@ -106,7 +106,7 @@ export function HabitCard({
           }
         >
           {habit.completed ? (
-            <Check className="size-4" aria-hidden="true" />
+            <Check className="size-5" aria-hidden="true" />
           ) : null}
         </Button>
       ) : (
@@ -122,25 +122,25 @@ export function HabitCard({
           />
           <Button
             type="button"
-            size="icon"
+            size="icon-lg"
             variant="outline"
-            className="size-8 rounded-full"
+            className="rounded-full"
             onClick={onDecrement}
             disabled={pending || !habit.value}
             aria-label={`Remove one from ${habit.name}`}
           >
-            <Minus className="size-3.5" aria-hidden="true" />
+            <Minus className="size-4" aria-hidden="true" />
           </Button>
           <Button
             type="button"
-            size="icon"
+            size="icon-lg"
             variant={habit.completed ? "default" : "outline"}
-            className="size-8 rounded-full"
+            className="rounded-full"
             onClick={onIncrement}
             disabled={pending}
             aria-label={`Add one to ${habit.name}`}
           >
-            <Plus className="size-3.5" aria-hidden="true" />
+            <Plus className="size-4" aria-hidden="true" />
           </Button>
         </div>
       )}

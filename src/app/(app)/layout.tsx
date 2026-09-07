@@ -26,6 +26,12 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
+      <a
+        href="#main-content"
+        className="bg-primary text-primary-foreground focus-visible:ring-ring sr-only rounded-lg px-4 py-2 text-sm font-medium outline-none focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:ring-2"
+      >
+        Skip to content
+      </a>
       <AppRail />
       <div className="flex min-h-svh flex-1 flex-col">
         <header className="border-border flex items-center justify-between border-b px-4 py-3 md:hidden">
@@ -34,7 +40,9 @@ export default async function AppLayout({
           </span>
           <SignOutButton />
         </header>
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
       </div>
       <AppTabBar />
     </div>

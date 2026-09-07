@@ -72,15 +72,15 @@ export function AmountEntryDialog({
         render={
           <Button
             type="button"
-            size="icon"
+            size="icon-lg"
             variant="outline"
-            className="size-8 rounded-full"
+            className="rounded-full"
             disabled={pending}
             aria-label={`Enter amount for ${habitName}`}
           />
         }
       >
-        <Pencil className="size-3.5" aria-hidden="true" />
+        <Pencil className="size-4" aria-hidden="true" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

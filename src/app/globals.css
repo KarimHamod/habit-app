@@ -138,3 +138,20 @@
     @apply font-sans;
   }
 }
+
+/*
+ * Every transition/animation in this app is decorative feedback on top of a
+ * state that's already conveyed statically (final color, width, or open/closed
+ * position) — nothing here relies on the motion itself to deliver information,
+ * so collapsing durations is safe and doesn't strand content mid-animation.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

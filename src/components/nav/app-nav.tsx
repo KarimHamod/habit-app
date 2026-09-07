@@ -77,14 +77,15 @@ export function AppRail() {
   return (
     <nav
       aria-label="Primary"
-      className="border-border sticky top-0 hidden h-svh w-56 shrink-0 flex-col justify-between border-r p-4 md:flex"
+      className="border-border sticky top-0 hidden h-svh w-18 shrink-0 flex-col justify-between border-r p-3 md:flex lg:w-56 lg:p-4"
     >
       <div className="flex flex-col gap-6">
         <Link
           href="/today"
-          className="font-display text-primary px-2 text-xl font-semibold"
+          className="font-display text-primary flex h-8 items-center justify-center px-2 text-xl font-semibold lg:justify-start"
         >
-          Habit
+          <span className="lg:hidden">H</span>
+          <span className="hidden lg:inline">Habit</span>
         </Link>
         <ul className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -93,23 +94,26 @@ export function AppRail() {
               <li key={href}>
                 <Link
                   href={href}
+                  aria-label={label}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                    "flex items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors lg:justify-start",
                     active
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium",
                   )}
                 >
-                  <Icon className="size-5" aria-hidden="true" />
-                  {label}
+                  <Icon className="size-5 shrink-0" aria-hidden="true" />
+                  <span className="hidden lg:inline">{label}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
       </div>
-      <SignOutButton />
+      <div className="flex justify-center lg:justify-start">
+        <SignOutButton compact />
+      </div>
     </nav>
   );
 }

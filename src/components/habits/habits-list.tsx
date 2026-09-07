@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HabitAvatar } from "@/components/habits/habit-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -235,16 +236,12 @@ export function HabitsList({
                   href={`/habits/${habit.id}`}
                   className="flex min-w-0 flex-1 items-center gap-3"
                 >
-                  <div
-                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                    style={{
-                      backgroundColor:
-                        habit.color ?? "var(--color-muted-foreground)",
-                    }}
-                    aria-hidden="true"
-                  >
-                    {habit.icon ?? habit.name.charAt(0).toUpperCase()}
-                  </div>
+                  <HabitAvatar
+                    icon={habit.icon}
+                    name={habit.name}
+                    color={habit.color}
+                    size="sm"
+                  />
 
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{habit.name}</p>

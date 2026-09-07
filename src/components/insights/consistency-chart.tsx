@@ -40,49 +40,69 @@ export function ConsistencyChart({ points }: ConsistencyChartProps) {
           as you log habits.
         </p>
       ) : (
-        <div className="h-40 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data}
-              margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                className="stroke-border"
-              />
-              <XAxis
-                dataKey="week"
-                tickLine={false}
-                axisLine={false}
-                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
-              />
-              <YAxis
-                domain={[0, 100]}
-                ticks={[0, 50, 100]}
-                tickLine={false}
-                axisLine={false}
-                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
-              />
-              <Tooltip
-                cursor={{ fill: "var(--color-muted)" }}
-                formatter={(value) => [`${value}%`, "Completion rate"]}
-                contentStyle={{
-                  fontSize: 12,
-                  borderRadius: 8,
-                  border: "1px solid var(--color-border)",
-                  backgroundColor: "var(--color-popover)",
-                  color: "var(--color-popover-foreground)",
-                }}
-              />
-              <Bar
-                dataKey="rate"
-                fill="var(--color-primary)"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <>
+          <div className="h-40 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+                accessibilityLayer
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  className="stroke-border"
+                />
+                <XAxis
+                  dataKey="week"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  ticks={[0, 50, 100]}
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                />
+                <Tooltip
+                  cursor={{ fill: "var(--color-muted)" }}
+                  formatter={(value) => [`${value}%`, "Completion rate"]}
+                  contentStyle={{
+                    fontSize: 12,
+                    borderRadius: 8,
+                    border: "1px solid var(--color-border)",
+                    backgroundColor: "var(--color-popover)",
+                    color: "var(--color-popover-foreground)",
+                  }}
+                />
+                <Bar
+                  dataKey="rate"
+                  fill="var(--color-primary)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <table className="sr-only">
+            <caption>Weekly completion rate</caption>
+            <thead>
+              <tr>
+                <th scope="col">Week</th>
+                <th scope="col">Completion rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((point) => (
+                <tr key={point.week}>
+                  <td>{point.week}</td>
+                  <td>{point.rate}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
     </div>
   );
