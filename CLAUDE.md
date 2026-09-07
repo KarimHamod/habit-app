@@ -59,13 +59,15 @@ Prioritize:
 2. How much progress has been made?
 3. How easy is it to complete a habit?
 
-Avoid clutter.
+Avoid clutter in the primary habit list itself.
 
-Do not put unnecessary statistics on habit cards.
+A single streak indicator per habit row is permitted. Do not stack additional statistics onto habit cards beyond that.
 
-Use the established design system consistently.
+Secondary context (a companion/growth widget, a weekly consistency grid) belongs in a side rail alongside the primary list, not inside habit cards.
 
-Do not introduce arbitrary colors, spacing values, or component styles.
+Use the established design system consistently: the "Sprout & Bloom" system — a warm cream/forest-green/terracotta palette, Outfit (headings/labels) and Nunito Sans (body) typography, and pillowy rounded/pill shapes.
+
+Do not introduce colors, spacing values, or component styles outside that system.
 
 ## UX states
 
@@ -149,7 +151,7 @@ The app should not feel like a spreadsheet.
 
 Analytics should help users understand their behavior rather than overwhelm them with data.
 
-Gamification should support consistency rather than manipulate the user.
+Gamification should support consistency rather than manipulate the user. A companion/growth mechanic, a reflection journal, and community challenges are all sanctioned as gamification — but each must pass the same test: does it help the user stay consistent, or does it pressure/manipulate them into opening the app? If a mechanic fails that test, cut it regardless of how appealing it looks in a mockup.
 
 The primary interaction should be extremely fast:
 
