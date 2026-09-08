@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  Award,
   BarChart3,
   CalendarDays,
   ListChecks,
   Settings,
   Sun,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/habits", label: "Habits", icon: ListChecks },
-  { href: "/challenges", label: "Challenges", icon: Award },
+  { href: "/challenges", label: "Challenges", icon: Trophy },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/insights", label: "Insights", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
