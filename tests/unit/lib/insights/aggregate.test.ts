@@ -7,6 +7,7 @@ import {
   buildWeeklyConsistency,
   buildWeeklyFlow,
   rankHabitPerformance,
+  rankHabitPerformanceInRange,
   rankWeeklyChange,
 } from "@/lib/insights/aggregate";
 import type { HabitWithHistory } from "@/lib/insights/aggregate";
@@ -318,6 +319,67 @@ describe("rankHabitPerformance", () => {
     );
     expect(rankedFuture[0].scheduledCount).toBe(0);
     expect(rankedFuture[0].rate).toBe(0);
+  });
+});
+
+describe("rankHabitPerformanceInRange", () => {
+  it("rates each habit over the explicit range, not a rolling window ending today", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        id: "a",
+        name: "A",
+        // Completed on day 1 of a fixed Sept 1-10 range, nothing after.
+        completions: [{ date: "2026-09-01", completed: true, value: 1 }],
+      }),
+    ];
+    // Range ends 09-10, even though "today" is 09-20 (well past the range) —
+    // days after the range end must not count as missed.
+    const ranked = rankHabitPerformanceInRange(
+      habits,
+      "2026-09-01",
+      "2026-09-10",
+      "2026-09-20",
+      1,
+    );
+    expect(ranked[0].scheduledCount).toBe(10);
+    expect(ranked[0].rate).toBe(10);
+  });
+
+  it("still reports current streak relative to today, not the range end", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        completions: [
+          { date: "2026-09-19", completed: true, value: 1 },
+          { date: "2026-09-20", completed: true, value: 1 },
+        ],
+      }),
+    ];
+    const ranked = rankHabitPerformanceInRange(
+      habits,
+      "2026-09-01",
+      "2026-09-10",
+      "2026-09-20",
+      1,
+    );
+    expect(ranked[0].currentStreak).toBe(2);
+  });
+
+  it("agrees with rankHabitPerformance when given the same effective range", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        completions: [{ date: "2026-09-01", completed: true, value: 1 }],
+      }),
+    ];
+    const viaWindow = rankHabitPerformance(habits, "2026-09-01", 1, 1);
+    const viaRange = rankHabitPerformanceInRange(
+      habits,
+      "2026-09-01",
+      "2026-09-01",
+      "2026-09-01",
+      1,
+    );
+    expect(viaRange[0].rate).toBe(viaWindow[0].rate);
+    expect(viaRange[0].scheduledCount).toBe(viaWindow[0].scheduledCount);
   });
 });
 

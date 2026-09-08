@@ -220,27 +220,26 @@ export interface HabitPerformance {
 }
 
 /**
- * Each habit's completion rate over a trailing window (default: last 30
- * days) and current streak, sorted best-first. Deliberately a rolling
- * window rather than "this calendar month" — on day 1 of a new month a
- * month-to-date rate would be nearly empty (0% or 100% off a single day),
- * making the ranking meaningless right when someone opens the page.
+ * Each habit's completion rate over an explicit [rangeStart, rangeEnd] date
+ * range, plus its current streak (always relative to `today`, independent
+ * of the range), sorted best-first. The shared basis for both
+ * rankHabitPerformance (a rolling window ending today) and any fixed-window
+ * use (e.g. a challenge's [start_date, end_date]).
  */
-export function rankHabitPerformance(
+export function rankHabitPerformanceInRange(
   habits: HabitWithHistory[],
+  rangeStart: string,
+  rangeEnd: string,
   today: string,
   weekStartsOn: 0 | 1,
-  windowDays = 30,
 ): HabitPerformance[] {
-  const rangeStart = addDays(today, -(windowDays - 1));
-
   return habits
     .map((habit) => {
       const { scheduled, rate } = calculateRangeCompletion(
         habit.schedule,
         habit.completions,
         rangeStart,
-        today,
+        rangeEnd,
         weekStartsOn,
       );
       const currentStreak = calculateCurrentStreak(
@@ -259,4 +258,27 @@ export function rankHabitPerformance(
       };
     })
     .sort((a, b) => b.rate - a.rate);
+}
+
+/**
+ * Each habit's completion rate over a trailing window (default: last 30
+ * days) and current streak, sorted best-first. Deliberately a rolling
+ * window rather than "this calendar month" — on day 1 of a new month a
+ * month-to-date rate would be nearly empty (0% or 100% off a single day),
+ * making the ranking meaningless right when someone opens the page.
+ */
+export function rankHabitPerformance(
+  habits: HabitWithHistory[],
+  today: string,
+  weekStartsOn: 0 | 1,
+  windowDays = 30,
+): HabitPerformance[] {
+  const rangeStart = addDays(today, -(windowDays - 1));
+  return rankHabitPerformanceInRange(
+    habits,
+    rangeStart,
+    today,
+    today,
+    weekStartsOn,
+  );
 }
