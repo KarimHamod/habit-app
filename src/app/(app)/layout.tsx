@@ -40,7 +40,10 @@ export default async function AppLayout({
           </span>
           <SignOutButton />
         </header>
-        <main id="main-content" className="flex-1">
+        <main
+          id="main-content"
+          className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0"
+        >
           {children}
         </main>
       </div>
