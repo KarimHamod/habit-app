@@ -13,7 +13,9 @@ import { getTodayDateString } from "@/lib/dates/timezone";
 import type { DailyFlowPoint } from "@/lib/insights/aggregate";
 import type { GrowthStage } from "@/lib/insights/growth";
 import type { TodayHabit } from "@/lib/habits/types";
+import type { ChallengeProgress } from "@/lib/challenges/types";
 
+import { ChallengeBanner } from "./challenge-banner";
 import { CompanionWidget } from "./companion-widget";
 import { TodayEmptyState } from "./empty-state";
 import { HabitCard } from "./habit-card";
@@ -87,6 +89,7 @@ interface TodayViewProps {
   weekConsistency: number;
   companionStage: GrowthStage;
   companionRate: number;
+  activeChallenge: ChallengeProgress | null;
 }
 
 export function TodayView({
@@ -100,6 +103,7 @@ export function TodayView({
   weekConsistency,
   companionStage,
   companionRate,
+  activeChallenge,
 }: TodayViewProps) {
   const router = useRouter();
   const [habits, setHabits] = useState(initialHabits);
@@ -156,6 +160,9 @@ export function TodayView({
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-24 md:max-w-2xl md:gap-8 md:p-8 md:pb-10 lg:max-w-5xl lg:flex-row lg:items-start">
       <div className="flex min-w-0 flex-1 flex-col gap-6 md:gap-8">
+        {activeChallenge ? (
+          <ChallengeBanner challenge={activeChallenge} />
+        ) : null}
         <div>
           <p className="font-display text-2xl font-semibold md:text-3xl">
             {GREETING_COPY[daypart]}
