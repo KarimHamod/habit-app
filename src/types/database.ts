@@ -41,6 +41,63 @@ export type Database = {
         };
         Relationships: [];
       };
+      challenge_habits: {
+        Row: {
+          challenge_id: string;
+          habit_id: string;
+        };
+        Insert: {
+          challenge_id: string;
+          habit_id: string;
+        };
+        Update: {
+          challenge_id?: string;
+          habit_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "challenge_habits_challenge_id_fkey";
+            columns: ["challenge_id"];
+            isOneToOne: false;
+            referencedRelation: "challenges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "challenge_habits_habit_id_fkey";
+            columns: ["habit_id"];
+            isOneToOne: false;
+            referencedRelation: "habits";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      challenges: {
+        Row: {
+          created_at: string;
+          duration_days: number;
+          id: string;
+          name: string;
+          start_date: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          duration_days: number;
+          id?: string;
+          name: string;
+          start_date?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          duration_days?: number;
+          id?: string;
+          name?: string;
+          start_date?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       goals: {
         Row: {
           created_at: string;
