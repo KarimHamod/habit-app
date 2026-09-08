@@ -23,6 +23,17 @@ task. Brainstormed with the user and descoped before designing further:
   habit/streak logic."
 - **One active challenge at a time.** Keeps the Today surface and the list
   page simple — no stacking/prioritization UI.
+- **A challenge can be canceled early.** Caught during implementation
+  planning: "one active at a time" with no way out means a user who picks
+  the wrong habits, or simply changes their mind, is stuck for the full
+  duration before they can start another — which is itself a pressure
+  mechanic, undermining the neutral/no-pressure framing this whole feature
+  is built around. Canceling just deletes the `challenges` row (cascades
+  to `challenge_habits`); it never touches habit completion history, so it
+  can't violate "preserve historical data." No confirmation-averse
+  language — "Cancel challenge" with a plain confirmation dialog, same
+  `AlertDialog` pattern already used for habit deletion
+  (`src/components/habits/habits-list.tsx`), not framed as failure.
 - **No pass/fail state.** A challenge just ends and shows its real
   completion rate, framed neutrally ("22 of 30 days completed"), never
   "failed." This mirrors the Companion widget's growth-only framing (no
@@ -126,6 +137,11 @@ per CLAUDE.md).
   action itself (same pattern already used to fix the habit-creation
   duplication race — redirecting from inside the server action, not via a
   client `router.push` after the fact).
+- `src/actions/challenges.ts` also gets `cancelChallenge(challengeId)` —
+  deletes the `challenges` row after re-checking `auth.uid()` ownership
+  (RLS backs this up, but the action checks explicitly for a clean error
+  message rather than a generic RLS-denied failure), redirects to
+  `/challenges`.
 
 ## Pages & components
 
@@ -153,7 +169,11 @@ per CLAUDE.md).
   pattern as `SettingsForm`/`updateProfile`.
 - **`/challenges/[id]`** (`src/app/(app)/challenges/[id]/page.tsx`): detail
   view via `getChallengeById` — day X of N (or, once ended, the neutral
-  "N of M days completed" summary), per-linked-habit breakdown.
+  "N of M days completed" summary), per-linked-habit breakdown. If the
+  challenge is still active, a "Cancel challenge" action behind an
+  `AlertDialog` confirmation (same component/pattern as habit deletion),
+  calling `cancelChallenge`. Not shown once a challenge has ended (nothing
+  to cancel).
 - **Today page:** new `ChallengeBanner`
   (`src/components/today/challenge-banner.tsx`), rendered in
   `today-view.tsx`'s primary column, above the habit list — not the side
