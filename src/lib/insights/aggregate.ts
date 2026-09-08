@@ -18,14 +18,22 @@ export interface HabitWithHistory {
   completions: HabitCompletionRecord[];
 }
 
-/** Completed / scheduled occurrences summed across every habit in the range — the basis for every aggregate percentage on the page. */
-export function aggregateCompletionRate(
+export interface CompletionSummary {
+  scheduled: number;
+  completed: number;
+  rate: number;
+}
+
+/** Scheduled/completed occurrences summed across every habit in the range, plus the resulting rate — the basis for every aggregate percentage on the page. */
+export function aggregateCompletionSummary(
   habits: HabitWithHistory[],
   rangeStart: string,
   rangeEnd: string,
   weekStartsOn: 0 | 1 = 1,
-): number {
-  if (compareDateStrings(rangeStart, rangeEnd) > 0) return 0;
+): CompletionSummary {
+  if (compareDateStrings(rangeStart, rangeEnd) > 0) {
+    return { scheduled: 0, completed: 0, rate: 0 };
+  }
 
   let totalScheduled = 0;
   let totalCompleted = 0;
@@ -42,7 +50,22 @@ export function aggregateCompletionRate(
     totalCompleted += completed;
   }
 
-  return totalScheduled > 0 ? (totalCompleted / totalScheduled) * 100 : 0;
+  return {
+    scheduled: totalScheduled,
+    completed: totalCompleted,
+    rate: totalScheduled > 0 ? (totalCompleted / totalScheduled) * 100 : 0,
+  };
+}
+
+/** Completed / scheduled occurrences summed across every habit in the range — the basis for every aggregate percentage on the page. */
+export function aggregateCompletionRate(
+  habits: HabitWithHistory[],
+  rangeStart: string,
+  rangeEnd: string,
+  weekStartsOn: 0 | 1 = 1,
+): number {
+  return aggregateCompletionSummary(habits, rangeStart, rangeEnd, weekStartsOn)
+    .rate;
 }
 
 export interface WeeklyConsistencyPoint {

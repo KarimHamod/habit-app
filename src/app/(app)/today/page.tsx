@@ -4,6 +4,7 @@ import { TodayView } from "@/components/today/today-view";
 import { formatFriendlyDate } from "@/lib/dates/date-string";
 import { getDaypartGreeting, getTodayDateString } from "@/lib/dates/timezone";
 import { getTodayHabits } from "@/lib/habits/today";
+import { getCompanionGrowth } from "@/lib/insights/companion";
 import { getWeeklyFlow } from "@/lib/insights/weekly-flow";
 import {
   getAuthenticatedUser,
@@ -21,9 +22,10 @@ export default async function TodayPage() {
   const date = getTodayDateString(timezone);
 
   const weekStartsOn: 0 | 1 = profile?.week_starts_on === 0 ? 0 : 1;
-  const [habits, weeklyFlow] = await Promise.all([
+  const [habits, weeklyFlow, companion] = await Promise.all([
     getTodayHabits(user.id, date),
     getWeeklyFlow(user.id, date, weekStartsOn),
+    getCompanionGrowth(user.id, date, weekStartsOn),
   ]);
 
   return (
@@ -36,6 +38,8 @@ export default async function TodayPage() {
       friendlyDate={formatFriendlyDate(date)}
       weeklyFlow={weeklyFlow.days}
       weekConsistency={weeklyFlow.consistency}
+      companionStage={companion.stage}
+      companionRate={companion.rate}
     />
   );
 }

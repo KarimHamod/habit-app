@@ -11,8 +11,10 @@ import {
 import type { DaypartGreeting } from "@/lib/dates/timezone";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import type { DailyFlowPoint } from "@/lib/insights/aggregate";
+import type { GrowthStage } from "@/lib/insights/growth";
 import type { TodayHabit } from "@/lib/habits/types";
 
+import { CompanionWidget } from "./companion-widget";
 import { TodayEmptyState } from "./empty-state";
 import { HabitCard } from "./habit-card";
 import { ProgressHeader } from "./progress-header";
@@ -83,6 +85,8 @@ interface TodayViewProps {
   friendlyDate: string;
   weeklyFlow: DailyFlowPoint[];
   weekConsistency: number;
+  companionStage: GrowthStage;
+  companionRate: number;
 }
 
 export function TodayView({
@@ -94,6 +98,8 @@ export function TodayView({
   friendlyDate,
   weeklyFlow,
   weekConsistency,
+  companionStage,
+  companionRate,
 }: TodayViewProps) {
   const router = useRouter();
   const [habits, setHabits] = useState(initialHabits);
@@ -227,7 +233,8 @@ export function TodayView({
         )}
       </div>
 
-      <aside className="w-full lg:w-72 lg:shrink-0">
+      <aside className="flex w-full flex-col gap-6 lg:w-72 lg:shrink-0">
+        <CompanionWidget stage={companionStage} rate={companionRate} />
         <WeeklyFlowCard flow={weeklyFlow} consistency={weekConsistency} />
       </aside>
     </div>

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   aggregateCompletionRate,
+  aggregateCompletionSummary,
   buildCompletionHeatmap,
   buildWeeklyConsistency,
   buildWeeklyFlow,
@@ -71,6 +72,44 @@ describe("aggregateCompletionRate", () => {
   it("returns 0 for an inverted range instead of throwing", () => {
     const habits: HabitWithHistory[] = [habit()];
     expect(aggregateCompletionRate(habits, "2026-08-05", "2026-08-01")).toBe(0);
+  });
+});
+
+describe("aggregateCompletionSummary", () => {
+  it("returns scheduled/completed counts consistent with the resulting rate", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        id: "a",
+        completions: [{ date: "2026-08-01", completed: true, value: 1 }],
+      }),
+      habit({ id: "b", completions: [] }),
+    ];
+    const summary = aggregateCompletionSummary(
+      habits,
+      "2026-08-01",
+      "2026-08-01",
+    );
+    expect(summary).toEqual({ scheduled: 2, completed: 1, rate: 50 });
+  });
+
+  it("agrees with aggregateCompletionRate for the same inputs", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        id: "a",
+        completions: [{ date: "2026-08-01", completed: true, value: 1 }],
+      }),
+      habit({ id: "b", completions: [] }),
+    ];
+    expect(
+      aggregateCompletionSummary(habits, "2026-08-01", "2026-08-01").rate,
+    ).toBe(aggregateCompletionRate(habits, "2026-08-01", "2026-08-01"));
+  });
+
+  it("returns zeroed-out fields for an inverted range instead of throwing", () => {
+    const habits: HabitWithHistory[] = [habit()];
+    expect(
+      aggregateCompletionSummary(habits, "2026-08-05", "2026-08-01"),
+    ).toEqual({ scheduled: 0, completed: 0, rate: 0 });
   });
 });
 
