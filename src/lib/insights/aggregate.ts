@@ -1,6 +1,7 @@
 import {
   addDays,
   compareDateStrings,
+  enumerateDates,
   getWeekStart,
 } from "@/lib/dates/date-string";
 import {
@@ -122,6 +123,25 @@ export function buildWeeklyFlow(
       return { date, ...sumDailyCompletion(habits, date, weekStartsOn) };
     },
   );
+}
+
+/**
+ * Per-day scheduled/completed counts across every habit, for every day in
+ * [rangeStart, rangeEnd] inclusive — the basis for the year-long completion
+ * heatmap. Unlike buildWeeklyFlow, this has no notion of "today"; the caller
+ * decides the range (typically ending today, since there's nothing to show
+ * for days that haven't happened yet).
+ */
+export function buildCompletionHeatmap(
+  habits: HabitWithHistory[],
+  rangeStart: string,
+  rangeEnd: string,
+  weekStartsOn: 0 | 1,
+): DailyFlowPoint[] {
+  return enumerateDates(rangeStart, rangeEnd).map((date) => ({
+    date,
+    ...sumDailyCompletion(habits, date, weekStartsOn),
+  }));
 }
 
 export interface HabitWeeklyChange {

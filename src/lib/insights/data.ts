@@ -11,8 +11,10 @@ import { createClient } from "@/lib/supabase/server";
 
 import {
   aggregateCompletionRate,
+  buildCompletionHeatmap,
   buildWeeklyConsistency,
   rankHabitPerformance,
+  type DailyFlowPoint,
   type HabitPerformance,
   type HabitWithHistory,
   type WeeklyConsistencyPoint,
@@ -22,6 +24,7 @@ import { generateInsights, type Insight } from "./engine";
 const NEEDS_ATTENTION_THRESHOLD = 70;
 const MAX_LIST_LENGTH = 5;
 const CONSISTENCY_WEEKS = 8;
+const HEATMAP_DAYS = 365;
 
 export interface GoalProgressDisplay extends GoalProgress {
   id: string;
@@ -37,6 +40,7 @@ export interface InsightsData {
   bestHabits: HabitPerformance[];
   needsAttention: HabitPerformance[];
   consistency: WeeklyConsistencyPoint[];
+  heatmap: DailyFlowPoint[];
   goals: GoalProgressDisplay[];
   insights: Insight[];
 }
@@ -72,6 +76,7 @@ export async function getInsightsData(
         weekStartsOn,
         CONSISTENCY_WEEKS,
       ),
+      heatmap: [],
       goals: [],
       insights: [],
     };
@@ -163,6 +168,13 @@ export async function getInsightsData(
     today,
     weekStartsOn,
     CONSISTENCY_WEEKS,
+  );
+
+  const heatmap = buildCompletionHeatmap(
+    habits,
+    addDays(today, -(HEATMAP_DAYS - 1)),
+    today,
+    weekStartsOn,
   );
 
   const todayHabits = habits.filter((h) =>
@@ -267,6 +279,7 @@ export async function getInsightsData(
     bestHabits,
     needsAttention,
     consistency,
+    heatmap,
     goals,
     insights,
   };

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   aggregateCompletionRate,
+  buildCompletionHeatmap,
   buildWeeklyConsistency,
   buildWeeklyFlow,
   rankHabitPerformance,
@@ -119,6 +120,55 @@ describe("buildWeeklyFlow", () => {
     const points = buildWeeklyFlow(habits, "2026-09-01", 1);
     const saturday = points.find((p) => p.date === "2026-09-05")!;
     expect(saturday).toEqual({ date: "2026-09-05", scheduled: 0, completed: 0 });
+  });
+});
+
+describe("buildCompletionHeatmap", () => {
+  it("returns one point per day in the range, inclusive of both ends", () => {
+    const habits: HabitWithHistory[] = [habit()];
+    const points = buildCompletionHeatmap(
+      habits,
+      "2026-08-01",
+      "2026-08-03",
+      1,
+    );
+    expect(points.map((p) => p.date)).toEqual([
+      "2026-08-01",
+      "2026-08-02",
+      "2026-08-03",
+    ]);
+  });
+
+  it("sums scheduled and completed counts per day across habits", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        id: "a",
+        completions: [{ date: "2026-08-01", completed: true, value: 1 }],
+      }),
+      habit({ id: "b", completions: [] }),
+    ];
+    const points = buildCompletionHeatmap(
+      habits,
+      "2026-08-01",
+      "2026-08-01",
+      1,
+    );
+    expect(points).toEqual([
+      { date: "2026-08-01", scheduled: 2, completed: 1 },
+    ]);
+  });
+
+  it("does not zero out days beyond today the way buildWeeklyFlow does — the caller controls the range", () => {
+    const habits: HabitWithHistory[] = [habit()];
+    // A range entirely in the past relative to any "today" concept — the
+    // function has no notion of "today" at all, unlike buildWeeklyFlow.
+    const points = buildCompletionHeatmap(
+      habits,
+      "2020-01-01",
+      "2020-01-01",
+      1,
+    );
+    expect(points).toEqual([{ date: "2020-01-01", scheduled: 1, completed: 0 }]);
   });
 });
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { CompletionHeatmap } from "@/components/insights/completion-heatmap";
 import { ConsistencyChart } from "@/components/insights/consistency-chart";
 import { GoalProgressList } from "@/components/insights/goal-progress-list";
 import { HabitPerformanceList } from "@/components/insights/habit-performance-list";
@@ -82,6 +83,8 @@ export default async function InsightsPage() {
       <GoalProgressList goals={data.goals} />
 
       <ConsistencyChart points={data.consistency} />
+
+      <CompletionHeatmap points={data.heatmap} weekStartsOn={weekStartsOn} />
     </div>
   );
 }
