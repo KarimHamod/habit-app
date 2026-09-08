@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   aggregateCompletionRate,
   buildWeeklyConsistency,
+  buildWeeklyFlow,
   rankHabitPerformance,
   rankWeeklyChange,
 } from "@/lib/insights/aggregate";
@@ -86,6 +87,38 @@ describe("buildWeeklyConsistency", () => {
     const points = buildWeeklyConsistency(habits, "2026-08-31", 1, 1);
     // Only 2026-08-31 itself is in range for the current week — 0/1 completed.
     expect(points[0].rate).toBe(0);
+  });
+});
+
+describe("buildWeeklyFlow", () => {
+  it("returns one point per day of the current week, starting on weekStart", () => {
+    const habits: HabitWithHistory[] = [habit()];
+    // 2026-09-01 is a Tuesday; its week starts Monday 2026-08-31.
+    const points = buildWeeklyFlow(habits, "2026-09-01", 1);
+    expect(points).toHaveLength(7);
+    expect(points[0].date).toBe("2026-08-31");
+    expect(points[6].date).toBe("2026-09-06");
+  });
+
+  it("sums scheduled and completed counts per day across habits", () => {
+    const habits: HabitWithHistory[] = [
+      habit({
+        id: "a",
+        completions: [{ date: "2026-08-31", completed: true, value: 1 }],
+      }),
+      habit({ id: "b", completions: [] }),
+    ];
+    const points = buildWeeklyFlow(habits, "2026-09-01", 1);
+    const monday = points.find((p) => p.date === "2026-08-31")!;
+    expect(monday).toEqual({ date: "2026-08-31", scheduled: 2, completed: 1 });
+  });
+
+  it("treats days after today as not-yet-scheduled, even if a habit would recur then", () => {
+    const habits: HabitWithHistory[] = [habit()];
+    // today is Tuesday 2026-09-01; Saturday 2026-09-05 hasn't happened yet.
+    const points = buildWeeklyFlow(habits, "2026-09-01", 1);
+    const saturday = points.find((p) => p.date === "2026-09-05")!;
+    expect(saturday).toEqual({ date: "2026-09-05", scheduled: 0, completed: 0 });
   });
 });
 

@@ -73,6 +73,57 @@ export function buildWeeklyConsistency(
   return points;
 }
 
+export interface DailyFlowPoint {
+  date: string;
+  scheduled: number;
+  completed: number;
+}
+
+/** Scheduled/completed counts across every habit for a single day. */
+function sumDailyCompletion(
+  habits: HabitWithHistory[],
+  date: string,
+  weekStartsOn: 0 | 1,
+): { scheduled: number; completed: number } {
+  let scheduled = 0;
+  let completed = 0;
+  for (const habit of habits) {
+    const range = calculateRangeCompletion(
+      habit.schedule,
+      habit.completions,
+      date,
+      date,
+      weekStartsOn,
+    );
+    scheduled += range.scheduled;
+    completed += range.completed;
+  }
+  return { scheduled, completed };
+}
+
+/**
+ * Per-day scheduled/completed counts across every habit, for the 7 days of
+ * the current week (Sun/Mon start through the following Sat/Sun). Days after
+ * `today` haven't happened yet, so they read as zero/zero rather than
+ * "missed" — there's nothing to report until the day arrives.
+ */
+export function buildWeeklyFlow(
+  habits: HabitWithHistory[],
+  today: string,
+  weekStartsOn: 0 | 1,
+): DailyFlowPoint[] {
+  const weekStart = getWeekStart(today, weekStartsOn);
+
+  return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map(
+    (date) => {
+      if (compareDateStrings(date, today) > 0) {
+        return { date, scheduled: 0, completed: 0 };
+      }
+      return { date, ...sumDailyCompletion(habits, date, weekStartsOn) };
+    },
+  );
+}
+
 export interface HabitWeeklyChange {
   habitId: string;
   name: string;

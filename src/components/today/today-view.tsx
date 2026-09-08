@@ -10,11 +10,13 @@ import {
 } from "@/lib/habits/completion";
 import type { DaypartGreeting } from "@/lib/dates/timezone";
 import { getTodayDateString } from "@/lib/dates/timezone";
+import type { DailyFlowPoint } from "@/lib/insights/aggregate";
 import type { TodayHabit } from "@/lib/habits/types";
 
 import { TodayEmptyState } from "./empty-state";
 import { HabitCard } from "./habit-card";
 import { ProgressHeader } from "./progress-header";
+import { WeeklyFlowCard } from "./weekly-flow-card";
 
 type HabitAction =
   | { type: "complete"; habitId: string; value: number }
@@ -79,6 +81,8 @@ interface TodayViewProps {
   displayName: string | null;
   daypart: DaypartGreeting;
   friendlyDate: string;
+  weeklyFlow: DailyFlowPoint[];
+  weekConsistency: number;
 }
 
 export function TodayView({
@@ -88,6 +92,8 @@ export function TodayView({
   displayName,
   daypart,
   friendlyDate,
+  weeklyFlow,
+  weekConsistency,
 }: TodayViewProps) {
   const router = useRouter();
   const [habits, setHabits] = useState(initialHabits);
@@ -142,82 +148,88 @@ export function TodayView({
   const allComplete = total > 0 && completed === total;
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-24 md:max-w-2xl md:gap-8 md:p-8 md:pb-10">
-      <div>
-        <p className="font-display text-2xl font-semibold md:text-3xl">
-          {GREETING_COPY[daypart]}
-          {displayName ? `, ${displayName}` : ""}
-        </p>
-        <p className="text-muted-foreground">{friendlyDate}</p>
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-24 md:max-w-2xl md:gap-8 md:p-8 md:pb-10 lg:max-w-5xl lg:flex-row lg:items-start">
+      <div className="flex min-w-0 flex-1 flex-col gap-6 md:gap-8">
+        <div>
+          <p className="font-display text-2xl font-semibold md:text-3xl">
+            {GREETING_COPY[daypart]}
+            {displayName ? `, ${displayName}` : ""}
+          </p>
+          <p className="text-muted-foreground">{friendlyDate}</p>
+        </div>
+
+        {total > 0 ? (
+          <ProgressHeader completed={completed} total={total} />
+        ) : null}
+
+        {error ? (
+          <p role="alert" className="text-destructive text-sm">
+            {error}
+          </p>
+        ) : null}
+
+        {total === 0 ? (
+          <TodayEmptyState />
+        ) : allComplete ? (
+          <div
+            role="status"
+            className="border-mint/30 bg-mint/10 flex flex-col items-center gap-2 rounded-3xl border p-10 text-center"
+          >
+            <p className="text-3xl" aria-hidden="true">
+              🎉
+            </p>
+            <p className="font-medium">All habits completed!</p>
+            <p className="text-muted-foreground text-sm">Amazing work today.</p>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
+            {optimisticHabits.map((habit) => (
+              <li key={habit.id}>
+                <HabitCard
+                  habit={habit}
+                  pending={isPending}
+                  onToggleBoolean={() =>
+                    submit(
+                      habit,
+                      habit.completed
+                        ? { type: "uncomplete", habitId: habit.id }
+                        : { type: "complete", habitId: habit.id, value: 1 },
+                    )
+                  }
+                  onIncrement={() =>
+                    submit(habit, {
+                      type: "complete",
+                      habitId: habit.id,
+                      value: (habit.value ?? 0) + 1,
+                    })
+                  }
+                  onDecrement={() => {
+                    const next = (habit.value ?? 0) - 1;
+                    submit(
+                      habit,
+                      next <= 0
+                        ? { type: "uncomplete", habitId: habit.id }
+                        : { type: "complete", habitId: habit.id, value: next },
+                    );
+                  }}
+                  onSetValue={(value) =>
+                    submit(
+                      habit,
+                      value <= 0
+                        ? { type: "uncomplete", habitId: habit.id }
+                        : { type: "complete", habitId: habit.id, value },
+                    )
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {total > 0 ? (
-        <ProgressHeader completed={completed} total={total} />
-      ) : null}
-
-      {error ? (
-        <p role="alert" className="text-destructive text-sm">
-          {error}
-        </p>
-      ) : null}
-
-      {total === 0 ? (
-        <TodayEmptyState />
-      ) : allComplete ? (
-        <div
-          role="status"
-          className="border-mint/30 bg-mint/10 flex flex-col items-center gap-2 rounded-3xl border p-10 text-center"
-        >
-          <p className="text-3xl" aria-hidden="true">
-            🎉
-          </p>
-          <p className="font-medium">All habits completed!</p>
-          <p className="text-muted-foreground text-sm">Amazing work today.</p>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
-          {optimisticHabits.map((habit) => (
-            <li key={habit.id}>
-              <HabitCard
-                habit={habit}
-                pending={isPending}
-                onToggleBoolean={() =>
-                  submit(
-                    habit,
-                    habit.completed
-                      ? { type: "uncomplete", habitId: habit.id }
-                      : { type: "complete", habitId: habit.id, value: 1 },
-                  )
-                }
-                onIncrement={() =>
-                  submit(habit, {
-                    type: "complete",
-                    habitId: habit.id,
-                    value: (habit.value ?? 0) + 1,
-                  })
-                }
-                onDecrement={() => {
-                  const next = (habit.value ?? 0) - 1;
-                  submit(
-                    habit,
-                    next <= 0
-                      ? { type: "uncomplete", habitId: habit.id }
-                      : { type: "complete", habitId: habit.id, value: next },
-                  );
-                }}
-                onSetValue={(value) =>
-                  submit(
-                    habit,
-                    value <= 0
-                      ? { type: "uncomplete", habitId: habit.id }
-                      : { type: "complete", habitId: habit.id, value },
-                  )
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+      <aside className="w-full lg:w-72 lg:shrink-0">
+        <WeeklyFlowCard flow={weeklyFlow} consistency={weekConsistency} />
+      </aside>
     </div>
   );
 }
