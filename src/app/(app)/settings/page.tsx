@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { SettingsForm } from "@/components/settings/settings-form";
+import { ThemeToggleCard } from "@/components/settings/theme-toggle-card";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,6 +24,7 @@ export default async function SettingsPage() {
     <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
       <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
       <SettingsForm profile={profile} />
+      <ThemeToggleCard />
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
