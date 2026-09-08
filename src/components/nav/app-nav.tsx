@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Award,
   BarChart3,
   CalendarDays,
   ListChecks,
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/today", label: "Today", icon: Sun },
   { href: "/habits", label: "Habits", icon: ListChecks },
+  { href: "/challenges", label: "Challenges", icon: Award },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/insights", label: "Insights", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
