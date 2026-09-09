@@ -199,7 +199,13 @@ describe("buildCompletionHeatmap", () => {
   });
 
   it("does not zero out days beyond today the way buildWeeklyFlow does — the caller controls the range", () => {
-    const habits: HabitWithHistory[] = [habit()];
+    // The habit has to actually exist over the queried range: the default
+    // fixture starts 2026-08-01, so asking about 2020 would report
+    // scheduled: 0 because the habit didn't exist yet — testing pre-start
+    // handling rather than the "today" behaviour this case is about.
+    const habits: HabitWithHistory[] = [
+      habit({ schedule: buildSchedule({ startDate: "2020-01-01" }) }),
+    ];
     // A range entirely in the past relative to any "today" concept — the
     // function has no notion of "today" at all, unlike buildWeeklyFlow.
     const points = buildCompletionHeatmap(
