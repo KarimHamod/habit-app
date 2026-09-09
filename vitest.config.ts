@@ -12,7 +12,6 @@ export default defineConfig({
     // A test that genuinely needs a DOM can opt in with a
     // `// @vitest-environment jsdom` docblock at the top of the file.
     environment: "node",
-    setupFiles: ["./tests/setup.ts"],
     include: [
       "tests/unit/**/*.test.{ts,tsx}",
       "tests/integration/**/*.test.{ts,tsx}",
