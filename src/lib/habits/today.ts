@@ -1,7 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 
 import { calculateHabitProgress } from "./completion";
-import { groupScheduleVersionsByHabit, isHabitScheduledOnDate } from "./schedule";
+import { isPartOfDay } from "./part-of-day";
+import {
+  groupScheduleVersionsByHabit,
+  isHabitScheduledOnDate,
+} from "./schedule";
 import { calculateCurrentStreak } from "./streak";
 import type {
   HabitCompletionRecord,
@@ -113,6 +117,7 @@ export async function getTodayHabits(
       value: todayCompletion?.value ?? null,
       progress,
       currentStreak,
+      partOfDay: isPartOfDay(habit.part_of_day) ? habit.part_of_day : "anytime",
     });
   }
 

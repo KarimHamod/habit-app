@@ -95,5 +95,6 @@ export async function updateProfile(
   revalidatePath("/calendar");
   revalidatePath("/insights");
   revalidatePath("/insights/weekly");
+  revalidatePath("/journal");
   return { success: true };
 }

@@ -280,6 +280,7 @@ export type Database = {
           id: string;
           is_archived: boolean;
           name: string;
+          part_of_day: string;
           start_date: string;
           target: number | null;
           type: string;
@@ -298,6 +299,7 @@ export type Database = {
           id?: string;
           is_archived?: boolean;
           name: string;
+          part_of_day?: string;
           start_date?: string;
           target?: number | null;
           type: string;
@@ -316,6 +318,7 @@ export type Database = {
           id?: string;
           is_archived?: boolean;
           name?: string;
+          part_of_day?: string;
           start_date?: string;
           target?: number | null;
           type?: string;
@@ -360,6 +363,33 @@ export type Database = {
           timezone?: string;
           updated_at?: string;
           week_starts_on?: number;
+        };
+        Relationships: [];
+      };
+      reflections: {
+        Row: {
+          body: string;
+          created_at: string;
+          entry_date: string;
+          id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          entry_date: string;
+          id?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          entry_date?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string;
         };
         Relationships: [];
       };

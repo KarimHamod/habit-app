@@ -23,6 +23,7 @@ function toHabitRow(input: HabitInput, userId: string) {
     target: input.target ?? null,
     unit: input.unit || null,
     frequency_type: input.frequencyType,
+    part_of_day: input.partOfDay,
     start_date: input.startDate,
     end_date: input.endDate || null,
   };
@@ -128,7 +129,9 @@ export async function updateHabit(
     supabase.from("profiles").select("timezone").eq("id", user.id).single(),
     supabase
       .from("habit_schedule_versions")
-      .select("id, frequency_type, days_of_week, times_per_period, effective_from")
+      .select(
+        "id, frequency_type, days_of_week, times_per_period, effective_from",
+      )
       .eq("habit_id", habitId)
       .is("effective_until", null)
       .maybeSingle(),

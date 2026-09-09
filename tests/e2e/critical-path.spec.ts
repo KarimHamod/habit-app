@@ -54,7 +54,8 @@ test("critical path: create a habit, complete it, and see the streak", async ({
     await page.getByRole("button", { name: "Next", exact: true }).click(); // basics -> frequency
     await page.getByRole("button", { name: "Next", exact: true }).click(); // frequency (Daily, default) -> type
     await page.getByRole("button", { name: "Next", exact: true }).click(); // type (Yes/No, default) -> schedule
-    await page.getByRole("button", { name: "Next", exact: true }).click(); // schedule (today, default) -> review
+    await page.getByRole("radio", { name: "Morning" }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click(); // schedule -> review
     await page.getByRole("button", { name: "Create Habit" }).click();
     await page.waitForURL("/today");
 
@@ -64,6 +65,11 @@ test("critical path: create a habit, complete it, and see the streak", async ({
       name: `Mark ${habitName} as done`,
     });
     await expect(toggle).toBeVisible();
+
+    // The habit was filed under Morning, so Today groups it under a Morning
+    // heading rather than rendering one flat list. Asserted before the
+    // completion below, which swaps the list for the "all done" celebration.
+    await expect(page.getByRole("heading", { name: /Morning/ })).toBeVisible();
 
     // Complete it — this is the account's only habit, so the Today page
     // swaps the list for the "all done" celebration rather than leaving the
@@ -82,7 +88,12 @@ test("critical path: create a habit, complete it, and see the streak", async ({
 
     // The habit detail page reflects a 1-day streak from that single completion.
     await page.goto("/habits");
-    await page.getByText(habitName).click();
+    // Click the link itself (not the <p> inside it) and wait for the
+    // navigation: clicking the inner text can land before the route has
+    // hydrated, in which case nothing happens and the assertion below fails
+    // 15s later with a misleading "streak card not found".
+    await page.getByRole("link", { name: new RegExp(habitName) }).click();
+    await page.waitForURL(/\/habits\/[0-9a-f-]{36}$/);
     const currentStreakCard = page
       .locator("div.rounded-xl.border.p-4.text-center")
       .filter({ hasText: "Current streak" });

@@ -1,3 +1,5 @@
+import type { PartOfDay } from "./part-of-day";
+
 export type HabitType = "boolean" | "quantity" | "duration";
 export type FrequencyType = "daily" | "weekly" | "specific_days" | "custom";
 
@@ -48,4 +50,5 @@ export interface TodayHabit {
   value: number | null;
   progress: number;
   currentStreak: number;
+  partOfDay: PartOfDay;
 }

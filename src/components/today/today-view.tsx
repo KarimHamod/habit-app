@@ -12,14 +12,20 @@ import type { DaypartGreeting } from "@/lib/dates/timezone";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import type { DailyFlowPoint } from "@/lib/insights/aggregate";
 import type { GrowthStage } from "@/lib/insights/growth";
+import {
+  groupHabitsByPartOfDay,
+  PART_OF_DAY_LABELS,
+} from "@/lib/habits/part-of-day";
 import type { TodayHabit } from "@/lib/habits/types";
 import type { ChallengeProgress } from "@/lib/challenges/types";
+import type { Reflection } from "@/lib/reflections/types";
 
 import { ChallengeBanner } from "./challenge-banner";
 import { CompanionWidget } from "./companion-widget";
 import { TodayEmptyState } from "./empty-state";
 import { HabitCard } from "./habit-card";
 import { ProgressHeader } from "./progress-header";
+import { ReflectionCard } from "./reflection-card";
 import { WeeklyFlowCard } from "./weekly-flow-card";
 
 type HabitAction =
@@ -90,6 +96,7 @@ interface TodayViewProps {
   companionStage: GrowthStage;
   companionRate: number;
   activeChallenge: ChallengeProgress | null;
+  reflection: Reflection | null;
 }
 
 export function TodayView({
@@ -104,6 +111,7 @@ export function TodayView({
   companionStage,
   companionRate,
   activeChallenge,
+  reflection,
 }: TodayViewProps) {
   const router = useRouter();
   const [habits, setHabits] = useState(initialHabits);
@@ -153,9 +161,60 @@ export function TodayView({
     });
   }
 
+  function renderHabit(habit: TodayHabit) {
+    return (
+      <HabitCard
+        habit={habit}
+        pending={isPending}
+        onToggleBoolean={() =>
+          submit(
+            habit,
+            habit.completed
+              ? { type: "uncomplete", habitId: habit.id }
+              : { type: "complete", habitId: habit.id, value: 1 },
+          )
+        }
+        onIncrement={() =>
+          submit(habit, {
+            type: "complete",
+            habitId: habit.id,
+            value: (habit.value ?? 0) + 1,
+          })
+        }
+        onDecrement={() => {
+          const next = (habit.value ?? 0) - 1;
+          submit(
+            habit,
+            next <= 0
+              ? { type: "uncomplete", habitId: habit.id }
+              : { type: "complete", habitId: habit.id, value: next },
+          );
+        }}
+        onSetValue={(value) =>
+          submit(
+            habit,
+            value <= 0
+              ? { type: "uncomplete", habitId: habit.id }
+              : { type: "complete", habitId: habit.id, value },
+          )
+        }
+      />
+    );
+  }
+
   const total = optimisticHabits.length;
   const completed = optimisticHabits.filter((h) => h.completed).length;
   const allComplete = total > 0 && completed === total;
+
+  // Grouping is a pure render-time transform over the optimistic list, so
+  // completion toggles and their rollback behaviour are untouched.
+  const groups = groupHabitsByPartOfDay(optimisticHabits);
+  // A user who has never assigned a part of day gets one "anytime" bucket;
+  // labelling it would add a heading that carries no information, so the
+  // list renders exactly as it did before this feature existed.
+  const showGroupHeadings = !(
+    groups.length === 1 && groups[0].part === "anytime"
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 p-4 pb-24 md:max-w-2xl md:gap-8 md:p-8 md:pb-10 lg:max-w-5xl lg:flex-row lg:items-start">
@@ -164,10 +223,10 @@ export function TodayView({
           <ChallengeBanner challenge={activeChallenge} />
         ) : null}
         <div>
-          <p className="font-display text-2xl font-semibold md:text-3xl">
+          <h1 className="font-display text-2xl font-semibold md:text-3xl">
             {GREETING_COPY[daypart]}
             {displayName ? `, ${displayName}` : ""}
-          </p>
+          </h1>
           <p className="text-muted-foreground">{friendlyDate}</p>
         </div>
 
@@ -195,54 +254,40 @@ export function TodayView({
             <p className="text-muted-foreground text-sm">Amazing work today.</p>
           </div>
         ) : (
-          <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
-            {optimisticHabits.map((habit) => (
-              <li key={habit.id}>
-                <HabitCard
-                  habit={habit}
-                  pending={isPending}
-                  onToggleBoolean={() =>
-                    submit(
-                      habit,
-                      habit.completed
-                        ? { type: "uncomplete", habitId: habit.id }
-                        : { type: "complete", habitId: habit.id, value: 1 },
-                    )
-                  }
-                  onIncrement={() =>
-                    submit(habit, {
-                      type: "complete",
-                      habitId: habit.id,
-                      value: (habit.value ?? 0) + 1,
-                    })
-                  }
-                  onDecrement={() => {
-                    const next = (habit.value ?? 0) - 1;
-                    submit(
-                      habit,
-                      next <= 0
-                        ? { type: "uncomplete", habitId: habit.id }
-                        : { type: "complete", habitId: habit.id, value: next },
-                    );
-                  }}
-                  onSetValue={(value) =>
-                    submit(
-                      habit,
-                      value <= 0
-                        ? { type: "uncomplete", habitId: habit.id }
-                        : { type: "complete", habitId: habit.id, value },
-                    )
-                  }
-                />
-              </li>
+          <div className="flex flex-col gap-6 md:gap-8">
+            {groups.map(({ part, habits: groupHabits }) => (
+              <section
+                key={part}
+                aria-labelledby={showGroupHeadings ? `part-${part}` : undefined}
+                className="flex flex-col gap-3"
+              >
+                {showGroupHeadings ? (
+                  <h2
+                    id={`part-${part}`}
+                    className="font-display text-muted-foreground flex items-baseline justify-between text-sm font-semibold"
+                  >
+                    {PART_OF_DAY_LABELS[part]}
+                    <span className="text-xs font-medium">
+                      {groupHabits.filter((h) => h.completed).length} of{" "}
+                      {groupHabits.length} done
+                    </span>
+                  </h2>
+                ) : null}
+                <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
+                  {groupHabits.map((habit) => (
+                    <li key={habit.id}>{renderHabit(habit)}</li>
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 
       <aside className="flex w-full flex-col gap-6 lg:w-72 lg:shrink-0">
         <CompanionWidget stage={companionStage} rate={companionRate} />
         <WeeklyFlowCard flow={weeklyFlow} consistency={weekConsistency} />
+        <ReflectionCard reflection={reflection} />
       </aside>
     </div>
   );

@@ -37,7 +37,13 @@ const STEP_FIELDS: Record<HabitFormStep, (keyof HabitInput)[]> = {
   frequency: ["frequencyType", "daysOfWeek", "timesPerPeriod"],
   type: ["type"],
   target: ["target", "unit"],
-  schedule: ["startDate", "endDate", "reminderEnabled", "reminderTime"],
+  schedule: [
+    "partOfDay",
+    "startDate",
+    "endDate",
+    "reminderEnabled",
+    "reminderTime",
+  ],
   review: [],
 };
 
@@ -59,6 +65,15 @@ const WEEKDAYS = [
   { value: "5", label: "F" },
   { value: "6", label: "S" },
 ];
+
+// Ordering mirrors PART_OF_DAY_ORDER in src/lib/habits/part-of-day.ts, which
+// drives the matching section order on the Today page.
+const PART_OF_DAY_OPTIONS = [
+  { value: "morning", label: "Morning" },
+  { value: "afternoon", label: "Afternoon" },
+  { value: "evening", label: "Evening" },
+  { value: "anytime", label: "Anytime" },
+] as const;
 
 const COLOR_SWATCHES = [
   "#8b5cf6",
@@ -135,6 +150,7 @@ export function HabitForm({
     defaultValues: {
       type: "boolean",
       frequencyType: "daily",
+      partOfDay: "anytime",
       startDate: defaultStartDate,
       reminderEnabled: false,
       ...defaultValues,
@@ -565,6 +581,38 @@ export function HabitForm({
 
         {step === "schedule" ? (
           <div className="flex flex-col gap-4">
+            <fieldset className="flex flex-col gap-2">
+              <legend className="text-sm leading-none font-medium">
+                Time of day
+              </legend>
+              <p className="text-muted-foreground text-sm">
+                Groups this habit on your Today page. It doesn&apos;t change
+                when the habit is scheduled.
+              </p>
+              <Controller
+                control={control}
+                name="partOfDay"
+                render={({ field }) => (
+                  <RadioGroup
+                    className="grid grid-cols-2 gap-2"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    {PART_OF_DAY_OPTIONS.map((option) => (
+                      <label
+                        key={option.value}
+                        className="has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5 flex cursor-pointer items-center gap-3 rounded-xl border p-3"
+                      >
+                        <RadioGroupItem value={option.value} />
+                        <span className="text-sm font-medium">
+                          {option.label}
+                        </span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
+            </fieldset>
             <div className="flex flex-col gap-2">
               <Label htmlFor="startDate">Start date</Label>
               <Input id="startDate" type="date" {...register("startDate")} />
@@ -690,6 +738,11 @@ function ReviewSummary({
   if (data.type !== "boolean") {
     rows.push(["Target", `${data.target ?? "—"} ${data.unit ?? ""}`.trim()]);
   }
+  rows.push([
+    "Time of day",
+    PART_OF_DAY_OPTIONS.find((o) => o.value === data.partOfDay)?.label ??
+      "Anytime",
+  ]);
   rows.push(["Start date", data.startDate]);
   if (data.endDate) rows.push(["End date", data.endDate]);
   rows.push([

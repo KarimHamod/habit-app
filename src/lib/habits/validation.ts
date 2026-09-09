@@ -15,6 +15,12 @@ function optionalFromEmptyString<T extends z.ZodTypeAny>(schema: T) {
 }
 
 export const habitTypeSchema = z.enum(["boolean", "quantity", "duration"]);
+export const partOfDaySchema = z.enum([
+  "morning",
+  "afternoon",
+  "evening",
+  "anytime",
+]);
 export const frequencyTypeSchema = z.enum([
   "daily",
   "weekly",
@@ -44,6 +50,7 @@ export const habitSchema = z
       .optional(),
     unit: z.string().trim().max(30, "Unit is too long").optional(),
     frequencyType: frequencyTypeSchema,
+    partOfDay: partOfDaySchema.default("anytime"),
     daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
     timesPerPeriod: z.coerce.number().int().positive().optional(),
     startDate: dateStringSchema,

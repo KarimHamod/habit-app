@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { HabitForm } from "@/components/habits/habit-form";
+import { isPartOfDay } from "@/lib/habits/part-of-day";
 import type { HabitInput } from "@/lib/habits/validation";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthenticatedUser } from "@/lib/supabase/session";
@@ -58,6 +59,7 @@ export default async function EditHabitPage({
     target: habit.target ?? undefined,
     unit: habit.unit ?? undefined,
     frequencyType: habit.frequency_type as HabitInput["frequencyType"],
+    partOfDay: isPartOfDay(habit.part_of_day) ? habit.part_of_day : "anytime",
     daysOfWeek: schedule?.days_of_week ?? undefined,
     timesPerPeriod: schedule?.times_per_period ?? undefined,
     startDate: habit.start_date,
