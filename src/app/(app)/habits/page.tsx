@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { HabitsList, type HabitRow } from "@/components/habits/habits-list";
+import { RITUALS_TABS } from "@/components/nav/section-tab-items";
+import { SectionTabs } from "@/components/nav/section-tabs";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthenticatedUser } from "@/lib/supabase/session";
 
@@ -39,5 +41,12 @@ export default async function HabitsPage() {
     frequency_type: habit.frequency_type as HabitRow["frequency_type"],
   }));
 
-  return <HabitsList habits={rows} categories={categories ?? []} />;
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="mx-auto w-full max-w-lg px-4 pt-4">
+        <SectionTabs items={RITUALS_TABS} />
+      </div>
+      <HabitsList habits={rows} categories={categories ?? []} />
+    </div>
+  );
 }

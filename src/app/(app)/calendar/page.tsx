@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { CalendarView } from "@/components/calendar/calendar-view";
+import { CONSISTENCY_TABS } from "@/components/nav/section-tab-items";
+import { SectionTabs } from "@/components/nav/section-tabs";
 import { getMonthKey } from "@/lib/dates/date-string";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import { getMonthCalendarData } from "@/lib/habits/month-calendar-data";
@@ -33,14 +35,19 @@ export default async function CalendarPage({
   const days = await getMonthCalendarData(user.id, start, end, today);
 
   return (
-    // Keyed on monthKey so navigating months remounts the view instead of
-    // carrying over a selectedDate that no longer exists in the new grid.
-    <CalendarView
-      key={monthKey}
-      days={days}
-      monthKey={monthKey}
-      today={today}
-      weekStartsOn={weekStartsOn}
-    />
+    <div className="flex flex-col gap-4">
+      <div className="mx-auto w-full max-w-lg px-4 pt-4">
+        <SectionTabs items={CONSISTENCY_TABS} />
+      </div>
+      {/* Keyed on monthKey so navigating months remounts the view instead of
+          carrying over a selectedDate that no longer exists in the new grid. */}
+      <CalendarView
+        key={monthKey}
+        days={days}
+        monthKey={monthKey}
+        today={today}
+        weekStartsOn={weekStartsOn}
+      />
+    </div>
   );
 }

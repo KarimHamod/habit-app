@@ -8,6 +8,8 @@ import { GoalProgressList } from "@/components/insights/goal-progress-list";
 import { HabitPerformanceList } from "@/components/insights/habit-performance-list";
 import { InsightCallouts } from "@/components/insights/insight-callouts";
 import { ProgressSummary } from "@/components/insights/progress-summary";
+import { CONSISTENCY_TABS } from "@/components/nav/section-tab-items";
+import { SectionTabs } from "@/components/nav/section-tabs";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import { getInsightsData } from "@/lib/insights/data";
 import {
@@ -31,7 +33,10 @@ export default async function InsightsPage() {
   if (!data.hasHabits) {
     return (
       <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
-        <h1 className="text-2xl font-bold tracking-tight">Insights</h1>
+        <SectionTabs items={CONSISTENCY_TABS} />
+        <h1 className="text-2xl font-bold tracking-tight">
+          Consistency &amp; Garden
+        </h1>
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-10 text-center">
           <p className="font-medium">No habits yet.</p>
           <p className="text-muted-foreground text-sm">
@@ -48,8 +53,11 @@ export default async function InsightsPage() {
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
+      <SectionTabs items={CONSISTENCY_TABS} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Insights</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Consistency &amp; Garden
+        </h1>
         <Button
           variant="outline"
           size="sm"

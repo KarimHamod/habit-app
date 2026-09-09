@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HabitPerformanceList } from "@/components/insights/habit-performance-list";
+import { RITUALS_TABS } from "@/components/nav/section-tab-items";
+import { SectionTabs } from "@/components/nav/section-tabs";
 
 export default async function ChallengesPage() {
   const user = await getAuthenticatedUser();
@@ -28,8 +30,11 @@ export default async function ChallengesPage() {
   if (!active && past.length === 0) {
     return (
       <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
+        <SectionTabs items={RITUALS_TABS} />
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Challenges</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Challenges &amp; Rituals
+          </h1>
           <Button
             nativeButton={false}
             render={<Link href="/challenges/new">New challenge</Link>}
@@ -38,8 +43,8 @@ export default async function ChallengesPage() {
         <div className="rounded-2xl border p-8 text-center">
           <p className="font-medium">No challenges yet</p>
           <p className="text-muted-foreground mt-1 text-sm">
-            Bundle a few habits into a fixed-length challenge to focus on
-            them together.
+            Bundle a few habits into a fixed-length challenge to focus on them
+            together.
           </p>
         </div>
       </div>
@@ -48,8 +53,11 @@ export default async function ChallengesPage() {
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6 p-4 pb-24">
+      <SectionTabs items={RITUALS_TABS} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Challenges</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Challenges &amp; Rituals
+        </h1>
         {!active ? (
           <Button
             nativeButton={false}

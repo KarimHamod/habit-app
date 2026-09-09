@@ -1,30 +1,44 @@
 "use client";
 
-import {
-  BarChart3,
-  CalendarDays,
-  ListChecks,
-  Settings,
-  Sun,
-  Trophy,
-} from "lucide-react";
+import { BookOpen, Settings, Sprout, Sun, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { cn } from "@/lib/utils";
 
+// Five primary destinations, per the Sprout & Bloom information
+// architecture. /habits and /calendar are still real, deep-linkable routes —
+// they sit inside the Rituals and Consistency sections respectively, reached
+// through <SectionTabs>, and are listed in `matches` so the parent nav item
+// still highlights while the user is on them.
 const NAV_ITEMS = [
-  { href: "/today", label: "Today", icon: Sun },
-  { href: "/habits", label: "Habits", icon: ListChecks },
-  { href: "/challenges", label: "Challenges", icon: Trophy },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/insights", label: "Insights", icon: BarChart3 },
-  { href: "/settings", label: "Settings", icon: Settings },
-] as const;
+  { href: "/today", label: "Today", icon: Sun, matches: [] },
+  { href: "/challenges", label: "Rituals", icon: Trophy, matches: ["/habits"] },
+  {
+    href: "/insights",
+    label: "Consistency",
+    icon: Sprout,
+    matches: ["/calendar"],
+  },
+  { href: "/journal", label: "Journal", icon: BookOpen, matches: [] },
+  { href: "/settings", label: "Settings", icon: Settings, matches: [] },
+] as const satisfies readonly {
+  href: string;
+  label: string;
+  icon: typeof Sun;
+  matches: readonly string[];
+}[];
 
-function isActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+function matchesPath(pathname: string, path: string) {
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
+function isActive(pathname: string, href: string, matches: readonly string[]) {
+  return (
+    matchesPath(pathname, href) ||
+    matches.some((path) => matchesPath(pathname, path))
+  );
 }
 
 export function AppTabBar() {
@@ -36,8 +50,8 @@ export function AppTabBar() {
       className="border-border bg-background/95 fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
     >
       <ul className="mx-auto flex max-w-lg items-stretch justify-between px-2">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = isActive(pathname, href);
+        {NAV_ITEMS.map(({ href, label, icon: Icon, matches }) => {
+          const active = isActive(pathname, href, matches);
           return (
             <li key={href} className="flex-1">
               <Link
@@ -90,8 +104,8 @@ export function AppRail() {
           <span className="hidden lg:inline">Habit</span>
         </Link>
         <ul className="flex flex-col gap-1">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const active = isActive(pathname, href);
+          {NAV_ITEMS.map(({ href, label, icon: Icon, matches }) => {
+            const active = isActive(pathname, href, matches);
             return (
               <li key={href}>
                 <Link
