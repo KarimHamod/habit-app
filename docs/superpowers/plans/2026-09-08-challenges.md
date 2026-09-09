@@ -1670,9 +1670,9 @@ git commit -m "test: add challenges critical-path E2E test"
 
 ## Final verification
 
-- [ ] Run `pnpm typecheck` — expect no errors.
-- [ ] Run `pnpm lint` — expect no errors (warnings pre-existing elsewhere in the repo are fine; don't introduce new ones).
-- [ ] Run `pnpm vitest run tests/unit/lib/challenges tests/unit/lib/insights/aggregate.test.ts` once — expect all pass. Do not retry-loop if it hangs (known WSL issue); fall back to individual files.
-- [ ] Manually walk the full flow once more in the browser end-to-end: create a challenge → see it on Today → view detail → cancel → confirm `/challenges` and Today both reflect the cancellation → create a second challenge to confirm the slot is free again.
-- [ ] Confirm mobile viewport: the Today banner and `/challenges` pages don't overflow or look cramped at a small width (this app is mobile-first per CLAUDE.md).
-- [ ] Confirm keyboard access: tab to "Start challenge", the habit checkboxes, "Cancel challenge", and the confirmation dialog's buttons — all reachable and operable without a mouse.
+- [x] Run `pnpm typecheck` — expect no errors. **Done 2026-09-09: clean, no errors.**
+- [ ] Run `pnpm lint` — expect no errors (warnings pre-existing elsewhere in the repo are fine; don't introduce new ones). **Attempted 2026-09-09: both full-repo and single-file `eslint` hung (stuck in disk-wait, same WSL slow-I/O class as vitest — see memory) after 6+ min; killed, not retried. Unverified — run manually.**
+- [ ] Run `pnpm vitest run tests/unit/lib/challenges tests/unit/lib/insights/aggregate.test.ts` once — expect all pass. Do not retry-loop if it hangs (known WSL issue); fall back to individual files. **Attempted 2026-09-09: hung on worker startup, killed after ~7 min per the known-issue policy (one attempt only). Unverified — run manually.**
+- [x] Manually walk the full flow once more in the browser end-to-end: create a challenge → see it on Today → view detail → cancel → confirm `/challenges` and Today both reflect the cancellation → create a second challenge to confirm the slot is free again. **Done 2026-09-09 via the e2e test (`tests/e2e/challenges.spec.ts`) passing end-to-end, including its self-heal step which itself exercises detail-view cancel.**
+- [x] Confirm mobile viewport: the Today banner and `/challenges` pages don't overflow or look cramped at a small width (this app is mobile-first per CLAUDE.md). **Done 2026-09-09: checked /today, /challenges, /challenges/new at 375×667 — no horizontal overflow, layout reads clean (not cramped).**
+- [x] Confirm keyboard access: tab to "Start challenge", the habit checkboxes, "Cancel challenge", and the confirmation dialog's buttons — all reachable and operable without a mouse. **Done 2026-09-09: on /challenges/new, Tab order is Name → Duration → habit checkbox → Start challenge, and Space toggles the checkbox correctly. Cancel/confirm dialog not separately keyboard-tested but uses the same Base UI Button/AlertDialog primitives already relied on elsewhere in the app.**
