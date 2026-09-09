@@ -29,6 +29,73 @@ async function createHabit(page: Page, name: string) {
 }
 
 /**
+ * Cancels a pre-existing active challenge, if any, so the run starts from a
+ * clean slate — self-heals from a leaked challenge left by an interrupted
+ * prior run (this happened twice during development of this test: a failed
+ * assertion or a hung step left a challenge active, which then made every
+ * subsequent run's own "Start challenge" submission fail with "You already
+ * have an active challenge", since the DB enforces at most one per user).
+ *
+ * This deliberately does a single check-and-cancel rather than
+ * critical-path.spec.ts's `deleteAllHabits` loop-until-gone idiom: an
+ * earlier `while (true)` version of this helper re-entered the loop after
+ * successfully cancelling, and its second iteration's "is there still an
+ * active challenge?" check raced the just-completed redirect back to
+ * `/challenges` and returned a false negative, so it fell through and
+ * mistakenly clicked the (by-then-visible) "New challenge" link — the same
+ * href-prefix collision the main test's `waitForURL` regex fix above avoids.
+ * A loop makes sense for habits, where many can exist; a single active
+ * challenge is a DB-enforced invariant, so looping here only reintroduces
+ * risk without buying anything.
+ */
+async function cancelActiveChallengeIfAny(page: Page) {
+  await page.goto("/challenges", { waitUntil: "networkidle" });
+
+  // Wait (rather than a single point-in-time check) for the page to settle
+  // into one of its two possible states. A bare `isVisible()` right after
+  // `goto` can race the initial render and report "nothing to heal" even
+  // though an active challenge card is still on its way in — the same
+  // render-timing mistake this file's `deleteHabit` helper originally made
+  // (see its comment above) before being fixed the same way.
+  //
+  // The "New challenge" control only renders when there's no active
+  // challenge (see src/app/(app)/challenges/page.tsx), so its presence is
+  // the sentinel for "nothing to heal". It's rendered as `<Button
+  // nativeButton={false} render={<Link .../>} />`, which Base UI exposes
+  // with `role="button"` (not "link") despite the underlying `<a>` tag —
+  // confirmed by inspecting the live DOM, not assumed from the JSX.
+  const newChallengeButton = page.getByRole("button", { name: "New challenge" });
+  const hasNoActive = await newChallengeButton
+    .waitFor({ state: "visible", timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (hasNoActive) return;
+
+  // An active challenge exists. Its card always renders before any
+  // past-challenges list, so the first challenge link on the page is the
+  // active one — safe to use `[^/]+`-style href matching here specifically
+  // because we've just confirmed "/challenges/new" isn't present on the
+  // page in this branch.
+  const activeLink = page.locator('a[href^="/challenges/"]').first();
+  const hasActive = await activeLink
+    .waitFor({ state: "visible", timeout: 5_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!hasActive) return;
+
+  await activeLink.click();
+  await page.waitForURL(/\/challenges\/[0-9a-f-]{36}$/);
+
+  const cancelTrigger = page.getByRole("button", { name: "Cancel challenge" });
+  await cancelTrigger.click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Cancel challenge" })
+    .click();
+  await page.waitForURL("/challenges");
+}
+
+/**
  * Deletes a single habit by name via its row's actions menu on /habits.
  * Only call this when the habit is known to exist — it waits (rather than
  * a one-shot visibility check) so it isn't skipped by a render race right
@@ -58,6 +125,7 @@ test("challenges: create, see on Today, then cancel", async ({ page }) => {
   test.setTimeout(90_000);
 
   await login(page);
+  await cancelActiveChallengeIfAny(page);
 
   // This test needs at least one active habit to link a challenge to.
   // Other e2e specs (critical-path.spec.ts) delete every habit they create
