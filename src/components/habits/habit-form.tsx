@@ -26,8 +26,12 @@ import {
   type HabitFormStep,
 } from "@/lib/habits/form-steps";
 import { describeFrequency } from "@/lib/habits/format";
-import { getDefaultIconForCategory, HABIT_ICON_OPTIONS } from "@/lib/habits/icons";
+import {
+  getDefaultIconForCategory,
+  HABIT_ICON_OPTIONS,
+} from "@/lib/habits/icons";
 import { habitSchema, type HabitInput } from "@/lib/habits/validation";
+import { HABIT_COLOR_SWATCHES } from "@/lib/habits/palette";
 import { cn } from "@/lib/utils";
 
 import { NewCategoryDialog } from "./new-category-dialog";
@@ -74,17 +78,6 @@ const PART_OF_DAY_OPTIONS = [
   { value: "evening", label: "Evening" },
   { value: "anytime", label: "Anytime" },
 ] as const;
-
-const COLOR_SWATCHES = [
-  "#8b5cf6",
-  "#3b82f6",
-  "#06b6d4",
-  "#22c55e",
-  "#f97316",
-  "#ef4444",
-  "#ec4899",
-  "#64748b",
-];
 
 type FrequencyPreset = "daily" | "weekdays" | "specific_days" | "weekly";
 const WEEKDAY_VALUES = [1, 2, 3, 4, 5];
@@ -274,9 +267,7 @@ export function HabitForm({
                     onValueChange={(value) => {
                       field.onChange(value === "none" ? undefined : value);
                       if (value !== "none" && !getValues("icon")) {
-                        const category = categories.find(
-                          (c) => c.id === value,
-                        );
+                        const category = categories.find((c) => c.id === value);
                         const defaultIcon = getDefaultIconForCategory(
                           category?.name,
                         );
@@ -337,9 +328,7 @@ export function HabitForm({
                       onClick={() => field.onChange(undefined)}
                       className={cn(
                         "text-muted-foreground focus-visible:ring-ring flex size-9 items-center justify-center rounded-full border text-sm font-semibold ring-offset-2 outline-none focus-visible:ring-2",
-                        !field.value
-                          ? "border-foreground"
-                          : "border-border",
+                        !field.value ? "border-foreground" : "border-border",
                       )}
                     >
                       Aa
@@ -378,7 +367,7 @@ export function HabitForm({
                     role="radiogroup"
                     aria-label="Habit color"
                   >
-                    {COLOR_SWATCHES.map((hex) => (
+                    {HABIT_COLOR_SWATCHES.map((hex) => (
                       <button
                         key={hex}
                         type="button"
