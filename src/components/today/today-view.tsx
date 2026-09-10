@@ -16,6 +16,7 @@ import {
   groupHabitsByPartOfDay,
   PART_OF_DAY_LABELS,
 } from "@/lib/habits/part-of-day";
+import { pickNextHabit } from "@/lib/habits/next-up";
 import type { TodayHabit } from "@/lib/habits/types";
 import type { ChallengeProgress } from "@/lib/challenges/types";
 import type { Reflection } from "@/lib/reflections/types";
@@ -161,11 +162,12 @@ export function TodayView({
     });
   }
 
-  function renderHabit(habit: TodayHabit) {
+  function renderHabit(habit: TodayHabit, isNext: boolean) {
     return (
       <HabitCard
         habit={habit}
         pending={isPending}
+        isNext={isNext}
         onToggleBoolean={() =>
           submit(
             habit,
@@ -209,6 +211,9 @@ export function TodayView({
   // Grouping is a pure render-time transform over the optimistic list, so
   // completion toggles and their rollback behaviour are untouched.
   const groups = groupHabitsByPartOfDay(optimisticHabits);
+  // Recomputed from the optimistic list, so checking a habit off immediately
+  // promotes the following one instead of waiting on the server round trip.
+  const nextHabit = pickNextHabit(optimisticHabits);
   // A user who has never assigned a part of day gets one "anytime" bucket;
   // labelling it would add a heading that carries no information, so the
   // list renders exactly as it did before this feature existed.
@@ -275,7 +280,9 @@ export function TodayView({
                 ) : null}
                 <ul className="flex flex-col gap-3 md:grid md:grid-cols-2">
                   {groupHabits.map((habit) => (
-                    <li key={habit.id}>{renderHabit(habit)}</li>
+                    <li key={habit.id}>
+                      {renderHabit(habit, habit.id === nextHabit?.id)}
+                    </li>
                   ))}
                 </ul>
               </section>

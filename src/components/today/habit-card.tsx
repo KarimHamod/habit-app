@@ -12,6 +12,8 @@ import { AmountEntryDialog } from "./amount-entry-dialog";
 interface HabitCardProps {
   habit: TodayHabit;
   pending: boolean;
+  /** Marks the one habit the user should reach for next. */
+  isNext?: boolean;
   onToggleBoolean: () => void;
   onIncrement: () => void;
   onDecrement: () => void;
@@ -21,6 +23,7 @@ interface HabitCardProps {
 export function HabitCard({
   habit,
   pending,
+  isNext = false,
   onToggleBoolean,
   onIncrement,
   onDecrement,
@@ -41,6 +44,11 @@ export function HabitCard({
         habit.completed
           ? "border-transparent bg-[color-mix(in_oklch,var(--card),var(--habit-accent)_14%)]"
           : "border-border bg-card",
+        // The ring is reinforced by the "Next up" badge below, so the
+        // highlight never depends on colour alone.
+        isNext &&
+          !habit.completed &&
+          "ring-primary/50 border-primary/40 ring-2",
       )}
       style={{ "--habit-accent": accent } as React.CSSProperties}
     >
@@ -58,6 +66,11 @@ export function HabitCard({
       />
 
       <div className="min-w-0 flex-1">
+        {isNext && !habit.completed ? (
+          <p className="font-display text-primary text-[0.6875rem] font-semibold tracking-wide uppercase">
+            Next up
+          </p>
+        ) : null}
         <p className="truncate font-medium">{habit.name}</p>
         {subtitle ? (
           <p className="text-muted-foreground truncate text-sm">{subtitle}</p>
