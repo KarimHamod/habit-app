@@ -14,6 +14,8 @@
   --color-coral: var(--coral);
   --color-mint: var(--mint);
   --color-amber: var(--amber);
+  --color-lemon: var(--lemon);
+  --color-lemon-foreground: var(--lemon-foreground);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -53,78 +55,91 @@
 }
 
 :root {
-  --card: #f7ece4;
-  --card-foreground: #2c2825;
-  --popover: #ffffff;
-  --popover-foreground: #2c2825;
-  --primary: #2d5a43;
-  --primary-foreground: #ffffff;
-  --secondary: #fbeceb;
-  --secondary-foreground: #95473f;
-  --muted: #ebe1d8;
-  --muted-foreground: #5a534d;
-  --accent: #fef7e6;
-  --accent-foreground: #664e00;
-  --destructive: #e0483e;
-  --border: #e6ded3;
-  --input: #e6ded3;
-  --ring: #2d5a43;
-  --chart-1: #2d5a43;
-  --chart-2: #e2847a;
-  --chart-3: #f7d070;
-  --chart-4: #4e8765;
-  --chart-5: #95473f;
+  /* "Sunny Citrus" — ported from the Stitch design system. Material-role names
+     from the mock are noted so the mapping back to that source stays checkable. */
+  --background: #fff8f0; /* surface */
+  --foreground: #1e1b14; /* on-surface */
+  --card: #f5ede0; /* surface-container */
+  --card-foreground: #1e1b14;
+  --popover: #ffffff; /* surface-container-lowest */
+  --popover-foreground: #1e1b14;
+  /* The mock's own `primary` role. Deliberately NOT the lemon #f7c948: primary
+     is used as text (links, active nav, icons) in ~27 places, and lemon on
+     cream fails contrast. Lemon lives in --lemon, for fills behind dark text —
+     which is the only way the mock itself uses it. */
+  --primary: #765b00;
+  --primary-foreground: #ffffff; /* on-primary */
+  --secondary: #98f7b3; /* secondary-container — the green counterpoint */
+  --secondary-foreground: #00522a; /* on-secondary-fixed-variant */
+  --muted: #e9e2d5; /* surface-container-highest */
+  --muted-foreground: #4e4635; /* on-surface-variant */
+  --accent: #fdf8e6; /* lemon-100 — a wash, so menu hovers stay quiet */
+  --accent-foreground: #6d5400; /* on-primary-container */
+  --destructive: #ba1a1a; /* error */
+  --border: #d1c5ae; /* outline-variant */
+  --input: #d1c5ae;
+  --ring: #765b00;
+  --chart-1: #765b00;
+  --chart-2: #904d00;
+  --chart-3: #f5b025;
+  --chart-4: #006d39;
+  --chart-5: #c7860a;
   --radius: 1rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #2c2825;
-  --sidebar-primary: #2d5a43;
+  --sidebar: #faf3e5; /* surface-container-low */
+  --sidebar-foreground: #1e1b14;
+  --sidebar-primary: #765b00;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fbecea;
-  --sidebar-accent-foreground: #2c2825;
-  --sidebar-border: #e6ded3;
-  --sidebar-ring: #2d5a43;
-  --background: #faf7f2;
-  --foreground: #2c2825;
-  --coral: #e2847a;
-  --mint: #4e8765;
-  --amber: #d19f1f;
+  --sidebar-accent: #f5ede0;
+  --sidebar-accent-foreground: #1e1b14;
+  --sidebar-border: #d1c5ae;
+  --sidebar-ring: #765b00;
+  --coral: #904d00; /* tertiary — the warm burnt-orange accent (streak flame) */
+  --mint: #006d39; /* secondary — completion/success green */
+  --amber: #855307; /* lemon-800 — a gold that still reads as an icon on cream */
+  --lemon: #f7c948; /* lemon-500 — the signature fill, always behind dark text */
+  --lemon-foreground: #3d2e00;
 }
 
 .dark {
-  --background: #16211b;
-  --foreground: #f3ece2;
-  --card: #1e2a22;
-  --card-foreground: #f3ece2;
-  --popover: #1e2a22;
-  --popover-foreground: #f3ece2;
-  --primary: #8fd3ab;
-  --primary-foreground: #0f2a1c;
-  --secondary: #3a2420;
-  --secondary-foreground: #ffb4a4;
-  --muted: #2a352c;
-  --muted-foreground: #bcc5bb;
-  --accent: #3a2f12;
-  --accent-foreground: #f0cf7a;
+  /* The Stitch mocks are light-only, so dark is derived: warm near-black
+     grounds, with the light theme's *-fixed-dim roles promoted to foreground
+     accents the way Material 3 flips a palette. */
+  --background: #181510;
+  --foreground: #f2eadb; /* ~inverse-on-surface */
+  --card: #221e16;
+  --card-foreground: #f2eadb;
+  --popover: #221e16;
+  --popover-foreground: #f2eadb;
+  --primary: #eec140; /* inverse-primary / primary-fixed-dim */
+  --primary-foreground: #3d2e00;
+  --secondary: #1f3527;
+  --secondary-foreground: #7cda99; /* secondary-fixed-dim */
+  --muted: #2a251b;
+  --muted-foreground: #cfc5b0;
+  --accent: #3a3017;
+  --accent-foreground: #f7dc93;
   --destructive: #ff6b62;
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: #8fd3ab;
-  --chart-1: #8fd3ab;
-  --chart-2: #ff9a86;
-  --chart-3: #f7d070;
-  --chart-4: #6fae86;
-  --chart-5: #d98a72;
-  --sidebar: #1a251e;
-  --sidebar-foreground: #f3ece2;
-  --sidebar-primary: #8fd3ab;
-  --sidebar-primary-foreground: #0f2a1c;
-  --sidebar-accent: #2a352c;
-  --sidebar-accent-foreground: #f3ece2;
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: #8fd3ab;
-  --coral: #ff9a86;
-  --mint: #8fd3ab;
-  --amber: #f7d070;
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: #eec140;
+  --chart-1: #eec140;
+  --chart-2: #ffb77d;
+  --chart-3: #f5ce5c;
+  --chart-4: #7cda99;
+  --chart-5: #f7e19d;
+  --sidebar: #1d1913;
+  --sidebar-foreground: #f2eadb;
+  --sidebar-primary: #eec140;
+  --sidebar-primary-foreground: #3d2e00;
+  --sidebar-accent: #2a251b;
+  --sidebar-accent-foreground: #f2eadb;
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: #eec140;
+  --coral: #ffb77d; /* tertiary-fixed-dim */
+  --mint: #7cda99; /* secondary-fixed-dim */
+  --amber: #eec140;
+  --lemon: #eec140; /* dimmed from lemon-500 so a large fill doesn't glare */
+  --lemon-foreground: #3d2e00;
 }
 
 @layer base {

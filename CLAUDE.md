@@ -65,7 +65,11 @@ A single streak indicator per habit row is permitted. Do not stack additional st
 
 Secondary context (a companion/growth widget, a weekly consistency grid) belongs in a side rail alongside the primary list, not inside habit cards.
 
-Use the established design system consistently: the "Sprout & Bloom" system — a warm cream/forest-green/terracotta palette, Outfit (headings/labels) and Nunito Sans (body) typography, and pillowy rounded/pill shapes.
+Use the established design system consistently: the "Sunny Citrus" system — a warm cream/gold/lemon palette with green for completion and burnt orange as the warm accent, Outfit (headings/labels) and Nunito Sans (body) typography, and pillowy rounded/pill shapes.
+
+The palette lives entirely in `src/app/globals.css` (`:root` and `.dark`); there is no `tailwind.config`. Take colors from those tokens — never hardcode a hex in a component.
+
+Lemon (`--lemon`) is a fill only, always behind dark text (`--lemon-foreground`). It is never used as text or as an icon color on a light surface, where it fails contrast. `--primary` (a dark gold) is what carries text, links, icons and focus rings.
 
 Do not introduce colors, spacing values, or component styles outside that system.
 

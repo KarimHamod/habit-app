@@ -64,7 +64,7 @@ export function AppTabBar() {
                   className={cn(
                     "flex size-9 items-center justify-center rounded-full transition-colors",
                     active
-                      ? "bg-primary/12 text-primary"
+                      ? "bg-lemon text-lemon-foreground"
                       : "text-muted-foreground",
                   )}
                 >
@@ -117,7 +117,7 @@ export function AppRail() {
                   className={cn(
                     "flex items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors lg:justify-start",
                     active
-                      ? "bg-primary/10 text-primary font-semibold"
+                      ? "bg-lemon text-lemon-foreground font-semibold"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium",
                   )}
                 >
