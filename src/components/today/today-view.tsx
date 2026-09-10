@@ -292,7 +292,13 @@ export function TodayView({
       </div>
 
       <aside className="flex w-full flex-col gap-6 lg:w-72 lg:shrink-0">
-        <CompanionWidget stage={companionStage} rate={companionRate} />
+        <CompanionWidget
+          stage={companionStage}
+          rate={companionRate}
+          completedToday={completed}
+          totalToday={total}
+          displayName={displayName}
+        />
         <WeeklyFlowCard flow={weeklyFlow} consistency={weekConsistency} />
         <ReflectionCard reflection={reflection} />
       </aside>
