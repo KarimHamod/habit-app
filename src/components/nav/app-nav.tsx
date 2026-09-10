@@ -4,6 +4,7 @@ import { BookOpen, Settings, Sprout, Sun, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { SearchTrigger } from "@/components/search/search-trigger";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { cn } from "@/lib/utils";
 
@@ -103,6 +104,7 @@ export function AppRail() {
           <span className="lg:hidden">H</span>
           <span className="hidden lg:inline">Habit</span>
         </Link>
+        <SearchTrigger />
         <ul className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ href, label, icon: Icon, matches }) => {
             const active = isActive(pathname, href, matches);
