@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Settings, Sprout, Sun, Trophy } from "lucide-react";
+import { BookOpen, ListTodo, Settings, Sprout, Sun, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,13 +8,13 @@ import { SearchTrigger } from "@/components/search/search-trigger";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { cn } from "@/lib/utils";
 
-// Five primary destinations, per the Sprout & Bloom information
-// architecture. /habits and /calendar are still real, deep-linkable routes —
-// they sit inside the Rituals and Consistency sections respectively, reached
-// through <SectionTabs>, and are listed in `matches` so the parent nav item
-// still highlights while the user is on them.
+// Six primary destinations. /habits and /calendar are still real,
+// deep-linkable routes — they sit inside the Rituals and Consistency sections
+// respectively, reached through <SectionTabs>, and are listed in `matches` so
+// the parent nav item still highlights while the user is on them.
 const NAV_ITEMS = [
   { href: "/today", label: "Today", icon: Sun, matches: [] },
+  { href: "/todos", label: "To-Dos", icon: ListTodo, matches: [] },
   { href: "/challenges", label: "Rituals", icon: Trophy, matches: ["/habits"] },
   {
     href: "/insights",
