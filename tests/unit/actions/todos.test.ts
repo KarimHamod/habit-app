@@ -14,8 +14,7 @@ import {
 } from "@/actions/todos";
 
 function makeSupabase({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getUserResult = { data: { user: { id: "user-1" } } } as any,
+  getUserResult = { data: { user: { id: "user-1" } } } as { data: { user: { id: string } | null } },
   insertError = null as { message: string } | null,
   insertId = "new-todo-1",
   updateError = null as { message: string } | null,
@@ -24,10 +23,9 @@ function makeSupabase({
   const single = vi
     .fn()
     .mockResolvedValue(
-      (insertError
+      insertError
         ? { data: null, error: insertError }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        : { data: { id: insertId }, error: null }) as any,
+        : { data: { id: insertId }, error: null },
     );
   const select = vi.fn().mockReturnValue({ single });
   const insert = vi.fn().mockReturnValue({ select });
