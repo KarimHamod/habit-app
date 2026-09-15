@@ -21,12 +21,12 @@ function makeSupabase({
   updateError = null as { message: string } | null,
   deleteError = null as { message: string } | null,
 } = {}) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const single = vi
     .fn()
     .mockResolvedValue(
       (insertError
         ? { data: null, error: insertError }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         : { data: { id: insertId }, error: null }) as any,
     );
   const select = vi.fn().mockReturnValue({ single });
