@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 
 import { TodoListView } from "@/components/todos/todo-list-view";
+import { getTodayDateString } from "@/lib/dates/timezone";
 import { listTodos } from "@/lib/todos/data";
-import { getAuthenticatedUser } from "@/lib/supabase/session";
+import { getAuthenticatedUser, getCurrentProfile } from "@/lib/supabase/session";
 
 export const metadata = { title: "To-Dos" };
 
@@ -11,6 +12,10 @@ export default async function TodosPage() {
   if (!user) {
     redirect("/login");
   }
+
+  const profile = await getCurrentProfile();
+  const timezone = profile?.timezone ?? "UTC";
+  const today = getTodayDateString(timezone);
 
   const { active, parked } = await listTodos(user.id);
 
@@ -23,7 +28,7 @@ export default async function TodosPage() {
         </p>
       </div>
 
-      <TodoListView initialActive={active} initialParked={parked} />
+      <TodoListView initialActive={active} initialParked={parked} timezone={timezone} today={today} />
     </div>
   );
 }

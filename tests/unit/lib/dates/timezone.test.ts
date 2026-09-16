@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getDaypartGreeting, toZonedDateString } from "@/lib/dates/timezone";
+import { getCurrentTimeString, getDaypartGreeting, toZonedDateString } from "@/lib/dates/timezone";
 
 describe("toZonedDateString", () => {
   it("can land on the previous day west of UTC", () => {
@@ -57,5 +57,31 @@ describe("getDaypartGreeting", () => {
         new Date("2026-08-31T05:00:00Z"),
       ),
     ).toBe("evening");
+  });
+});
+
+describe("getCurrentTimeString", () => {
+  it("formats as zero-padded 24-hour HH:mm", () => {
+    expect(getCurrentTimeString("UTC", new Date("2026-08-31T08:05:00Z"))).toBe(
+      "08:05",
+    );
+  });
+
+  it("evaluates the time in the given timezone, not UTC", () => {
+    // 2026-08-31T05:00:00Z is 22:00 the previous evening in Los Angeles (PDT, UTC-7).
+    expect(
+      getCurrentTimeString("America/Los_Angeles", new Date("2026-08-31T05:00:00Z")),
+    ).toBe("22:00");
+  });
+
+  it("reflects the changed UTC offset across a DST transition", () => {
+    // US spring-forward is 2026-03-08. The same 09:00Z instant reads as
+    // 04:00 the day before (EST, UTC-5) and 05:00 the day after (EDT, UTC-4).
+    expect(
+      getCurrentTimeString("America/New_York", new Date("2026-03-07T09:00:00Z")),
+    ).toBe("04:00");
+    expect(
+      getCurrentTimeString("America/New_York", new Date("2026-03-09T09:00:00Z")),
+    ).toBe("05:00");
   });
 });

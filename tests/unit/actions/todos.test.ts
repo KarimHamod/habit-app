@@ -10,6 +10,7 @@ import {
   createTodo,
   deleteTodo,
   parkTodo,
+  setTodoDueDate,
   toggleTodo,
 } from "@/actions/todos";
 
@@ -84,6 +85,8 @@ describe("createTodo", () => {
     expect(supabase.insert).toHaveBeenCalledWith({
       user_id: "user-1",
       title: "Buy milk",
+      due_date: null,
+      due_time: null,
     });
     expect(supabase.select).toHaveBeenCalledWith("id");
     expect(result).toEqual({ success: true, id: "new-todo-1" });
@@ -109,6 +112,49 @@ describe("createTodo", () => {
 
     expect(result).toEqual({ error: "Couldn't add that to-do. Try again." });
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("inserts a due date and time when both are given", async () => {
+    const supabase = makeSupabase();
+    vi.mocked(createClient).mockResolvedValue(supabase as never);
+
+    await createTodo("Buy milk", "2026-09-20", "14:30");
+
+    expect(supabase.insert).toHaveBeenCalledWith({
+      user_id: "user-1",
+      title: "Buy milk",
+      due_date: "2026-09-20",
+      due_time: "14:30",
+    });
+  });
+
+  it("drops a due time given without a due date, without erroring", async () => {
+    const supabase = makeSupabase();
+    vi.mocked(createClient).mockResolvedValue(supabase as never);
+
+    const result = await createTodo("Buy milk", null, "14:30");
+
+    expect(supabase.insert).toHaveBeenCalledWith({
+      user_id: "user-1",
+      title: "Buy milk",
+      due_date: null,
+      due_time: null,
+    });
+    expect(result).toEqual({ success: true, id: "new-todo-1" });
+  });
+
+  it("rejects a malformed due date without contacting Supabase", async () => {
+    const result = await createTodo("Buy milk", "not-a-date");
+
+    expect(result).toEqual({ error: "Invalid due date" });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects a malformed due time without contacting Supabase", async () => {
+    const result = await createTodo("Buy milk", "2026-09-20", "25:99");
+
+    expect(result).toEqual({ error: "Invalid due time" });
+    expect(createClient).not.toHaveBeenCalled();
   });
 });
 
@@ -188,6 +234,54 @@ describe("parkTodo", () => {
     vi.mocked(createClient).mockResolvedValue(supabase as never);
 
     const result = await parkTodo("todo-1", false);
+
+    expect(result).toEqual({ error: "Couldn't update that to-do. Try again." });
+  });
+});
+
+describe("setTodoDueDate", () => {
+  beforeEach(() => {
+    vi.mocked(createClient).mockReset();
+    vi.mocked(revalidatePath).mockClear();
+  });
+
+  it("updates the due date and time for the authenticated user and revalidates", async () => {
+    const supabase = makeSupabase();
+    vi.mocked(createClient).mockResolvedValue(supabase as never);
+
+    const result = await setTodoDueDate("todo-1", "2026-09-20", "14:30");
+
+    expect(supabase.update).toHaveBeenCalledWith({
+      due_date: "2026-09-20",
+      due_time: "14:30",
+    });
+    expect(supabase.updateEq1).toHaveBeenCalledWith("id", "todo-1");
+    expect(supabase.updateEq2).toHaveBeenCalledWith("user_id", "user-1");
+    expect(result).toEqual({ success: true });
+    expect(revalidatePath).toHaveBeenCalledWith("/todos");
+  });
+
+  it("clears both fields when passed null", async () => {
+    const supabase = makeSupabase();
+    vi.mocked(createClient).mockResolvedValue(supabase as never);
+
+    await setTodoDueDate("todo-1", null);
+
+    expect(supabase.update).toHaveBeenCalledWith({ due_date: null, due_time: null });
+  });
+
+  it("rejects a malformed due date without contacting Supabase", async () => {
+    const result = await setTodoDueDate("todo-1", "not-a-date");
+
+    expect(result).toEqual({ error: "Invalid due date" });
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
+  it("returns an error when the update fails", async () => {
+    const supabase = makeSupabase({ updateError: { message: "db down" } });
+    vi.mocked(createClient).mockResolvedValue(supabase as never);
+
+    const result = await setTodoDueDate("todo-1", "2026-09-20");
 
     expect(result).toEqual({ error: "Couldn't update that to-do. Try again." });
   });

@@ -52,6 +52,15 @@ export function formatFriendlyDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
+/** "Aug 31" — compact form for badges, via UTC per `formatFriendlyDate`. */
+export function formatShortDate(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
 /** The 'YYYY-MM' key for a 'YYYY-MM-DD' date. */
 export function getMonthKey(date: string): string {
   return date.slice(0, 7);

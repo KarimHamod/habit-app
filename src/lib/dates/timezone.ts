@@ -16,6 +16,16 @@ export function getTodayDateString(timeZone: string): string {
   return toZonedDateString(new Date(), timeZone);
 }
 
+/** 'HH:mm' (24-hour) time-of-day in the user's zone, for comparing against a todo's `dueTime`. */
+export function getCurrentTimeString(timeZone: string, now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(now);
+}
+
 export type DaypartGreeting = "morning" | "afternoon" | "evening";
 
 /** Returns a semantic daypart, not copy — the UI layer composes "Good morning" etc. */

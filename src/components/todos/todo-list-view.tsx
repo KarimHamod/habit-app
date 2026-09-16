@@ -1,18 +1,21 @@
 "use client";
 
 import { ChevronDown, ChevronUp, ListTodo } from "lucide-react";
-import { useOptimistic, useState, useTransition } from "react";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
 
 import {
   createTodo,
   deleteTodo,
   parkTodo,
+  setTodoDueDate,
   toggleTodo,
   type TodoActionResult,
 } from "@/actions/todos";
 // createTodo's success shape is `{ success: true; id: string }`, distinct
 // from the other three actions' `TodoActionResult` — handled directly in
 // handleAdd below rather than through the generic `submit` helper.
+import { getCurrentTimeString } from "@/lib/dates/timezone";
+import { isOverdue, sortByDueDate } from "@/lib/todos/due-date";
 import type { Todo } from "@/lib/todos/types";
 
 import { TodoItem } from "./todo-item";
@@ -22,7 +25,8 @@ type TodoAction =
   | { type: "add"; todo: Todo }
   | { type: "toggle"; id: string; done: boolean }
   | { type: "park"; id: string; parked: boolean }
-  | { type: "delete"; id: string };
+  | { type: "delete"; id: string }
+  | { type: "setDue"; id: string; dueDate: string | null; dueTime: string | null };
 
 function applyAction(state: Todo[], action: TodoAction): Todo[] {
   switch (action.type) {
@@ -38,12 +42,18 @@ function applyAction(state: Todo[], action: TodoAction): Todo[] {
       );
     case "delete":
       return state.filter((todo) => todo.id !== action.id);
+    case "setDue":
+      return state.map((todo) =>
+        todo.id === action.id ? { ...todo, dueDate: action.dueDate, dueTime: action.dueTime } : todo,
+      );
   }
 }
 
 interface TodoListViewProps {
   initialActive: Todo[];
   initialParked: Todo[];
+  timezone: string;
+  today: string;
 }
 
 /**
@@ -52,12 +62,16 @@ interface TodoListViewProps {
  * the server result, and rolled back (by simply not committing the
  * optimistic change) on `{ error }`.
  */
-export function TodoListView({ initialActive, initialParked }: TodoListViewProps) {
+export function TodoListView({ initialActive, initialParked, timezone, today }: TodoListViewProps) {
   const [todos, setTodos] = useState<Todo[]>([...initialActive, ...initialParked]);
   const [optimisticTodos, applyOptimistic] = useOptimistic(todos, applyAction);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showParked, setShowParked] = useState(false);
+
+  // Computed once per mount, not a live clock — matches how `today` is
+  // computed once per page load elsewhere (e.g. today/page.tsx).
+  const nowTime = useMemo(() => getCurrentTimeString(timezone), [timezone]);
 
   function submit(action: TodoAction, run: () => Promise<TodoActionResult>) {
     setError(null);
@@ -72,16 +86,16 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
     });
   }
 
-  function handleAdd(title: string) {
+  function handleAdd(title: string, dueDate: string | null, dueTime: string | null) {
     // A temporary client id lets the optimistic row render immediately;
     // createTodo returns the real server-assigned id, which replaces it in
     // `setTodos` on success — no page reload needed.
     const tempId = `optimistic-${Date.now()}`;
-    const optimisticTodo: Todo = { id: tempId, title, done: false, parked: false };
+    const optimisticTodo: Todo = { id: tempId, title, done: false, parked: false, dueDate, dueTime };
     setError(null);
     startTransition(async () => {
       applyOptimistic({ type: "add", todo: optimisticTodo });
-      const result = await createTodo(title);
+      const result = await createTodo(title, dueDate, dueTime);
       if ("error" in result) {
         setError(result.error);
         return;
@@ -90,7 +104,7 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
     });
   }
 
-  const active = optimisticTodos.filter((todo) => !todo.parked);
+  const active = sortByDueDate(optimisticTodos.filter((todo) => !todo.parked));
   const parked = optimisticTodos.filter((todo) => todo.parked);
 
   return (
@@ -123,6 +137,8 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
               key={todo.id}
               todo={todo}
               pending={isPending}
+              today={today}
+              overdue={isOverdue(todo, today, nowTime)}
               onToggle={() =>
                 submit(
                   { type: "toggle", id: todo.id, done: !todo.done },
@@ -137,12 +153,17 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
               onDelete={() =>
                 submit({ type: "delete", id: todo.id }, () => deleteTodo(todo.id))
               }
+              onSetDueDate={(dueDate, dueTime) =>
+                submit({ type: "setDue", id: todo.id, dueDate, dueTime }, () =>
+                  setTodoDueDate(todo.id, dueDate, dueTime),
+                )
+              }
             />
           ))}
         </div>
       )}
 
-      <TodoQuickAdd pending={isPending} onAdd={handleAdd} />
+      <TodoQuickAdd pending={isPending} today={today} onAdd={handleAdd} />
 
       {parked.length > 0 ? (
         <div className="flex flex-col gap-2">
@@ -166,6 +187,8 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
                   key={todo.id}
                   todo={todo}
                   pending={isPending}
+                  today={today}
+                  overdue={isOverdue(todo, today, nowTime)}
                   onToggle={() =>
                     submit(
                       { type: "toggle", id: todo.id, done: !todo.done },
@@ -179,6 +202,11 @@ export function TodoListView({ initialActive, initialParked }: TodoListViewProps
                   }
                   onDelete={() =>
                     submit({ type: "delete", id: todo.id }, () => deleteTodo(todo.id))
+                  }
+                  onSetDueDate={(dueDate, dueTime) =>
+                    submit({ type: "setDue", id: todo.id, dueDate, dueTime }, () =>
+                      setTodoDueDate(todo.id, dueDate, dueTime),
+                    )
                   }
                 />
               ))}

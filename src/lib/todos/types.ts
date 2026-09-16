@@ -8,4 +8,8 @@ export interface Todo {
   title: string;
   done: boolean;
   parked: boolean;
+  /** 'YYYY-MM-DD', or null if this todo has no due date. */
+  dueDate: string | null;
+  /** 'HH:mm' (24-hour), or null. Always null when `dueDate` is null. */
+  dueTime: string | null;
 }

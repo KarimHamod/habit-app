@@ -397,6 +397,8 @@ export type Database = {
         Row: {
           created_at: string;
           done_at: string | null;
+          due_date: string | null;
+          due_time: string | null;
           id: string;
           parked: boolean;
           title: string;
@@ -405,6 +407,8 @@ export type Database = {
         Insert: {
           created_at?: string;
           done_at?: string | null;
+          due_date?: string | null;
+          due_time?: string | null;
           id?: string;
           parked?: boolean;
           title: string;
@@ -413,6 +417,8 @@ export type Database = {
         Update: {
           created_at?: string;
           done_at?: string | null;
+          due_date?: string | null;
+          due_time?: string | null;
           id?: string;
           parked?: boolean;
           title?: string;
