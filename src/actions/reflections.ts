@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { compareDateStrings } from "@/lib/dates/date-string";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import { reflectionSchema } from "@/lib/reflections/validation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/supabase/session";
 
 export type ReflectionActionState = { error?: string; success?: boolean };
@@ -37,10 +37,7 @@ export async function saveReflection(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const profile = await getCurrentProfile();
@@ -74,10 +71,7 @@ export async function saveReflection(
 export async function deleteReflection(
   entryDate: string,
 ): Promise<ReflectionDeleteResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase

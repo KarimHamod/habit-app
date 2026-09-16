@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { addDays, compareDateStrings } from "@/lib/dates/date-string";
 import { getTodayDateString } from "@/lib/dates/timezone";
 import { habitSchema, type HabitInput } from "@/lib/habits/validation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 export type HabitActionResult =
   { success: true; habitId: string } | { error: string };
@@ -69,10 +69,7 @@ export async function createHabit(
   if (!parsed.success)
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { data: habit, error: habitError } = await supabase
@@ -119,10 +116,7 @@ export async function updateHabit(
   if (!parsed.success)
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const [{ data: profile }, { data: currentVersion }] = await Promise.all([
@@ -215,10 +209,7 @@ export type SimpleActionResult = { success: true } | { error: string };
 export async function archiveHabit(
   habitId: string,
 ): Promise<SimpleActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
@@ -237,10 +228,7 @@ export async function archiveHabit(
 export async function restoreHabit(
   habitId: string,
 ): Promise<SimpleActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
@@ -260,10 +248,7 @@ export async function restoreHabit(
 export async function deleteHabit(
   habitId: string,
 ): Promise<SimpleActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase

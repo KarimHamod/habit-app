@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, requireUser } from "@/lib/supabase/server";
 import { onboardingSchema, type OnboardingInput } from "@/lib/validation/auth";
 
 export type ProfileActionState = {
@@ -40,10 +40,7 @@ export async function completeOnboarding(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
 
   if (!user) {
     redirect("/login");
@@ -72,10 +69,7 @@ export async function updateProfile(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
 
   if (!user) {
     redirect("/login");

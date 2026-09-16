@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { todoDueDateSchema, todoDueTimeSchema, todoTitleSchema } from "@/lib/todos/validation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 export type TodoActionResult = { success: true } | { error: string };
 export type CreateTodoResult = { success: true; id: string } | { error: string };
@@ -28,10 +28,7 @@ export async function createTodo(
   const parsedDue = parseDueDateTime(dueDate, dueTime);
   if ("error" in parsedDue) return parsedDue;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { data, error } = await supabase
@@ -78,10 +75,7 @@ export async function setTodoDueDate(
   const parsedDue = parseDueDateTime(dueDate, dueTime);
   if ("error" in parsedDue) return parsedDue;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
@@ -105,10 +99,7 @@ export async function toggleTodo(
   id: string,
   done: boolean,
 ): Promise<TodoActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
@@ -128,10 +119,7 @@ export async function parkTodo(
   id: string,
   parked: boolean,
 ): Promise<TodoActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
@@ -147,10 +135,7 @@ export async function parkTodo(
 }
 
 export async function deleteTodo(id: string): Promise<TodoActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase

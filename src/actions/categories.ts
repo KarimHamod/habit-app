@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 const categorySchema = z.object({
   name: z
@@ -27,10 +27,7 @@ export async function createCategory(
   if (!parsed.success)
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { data, error } = await supabase

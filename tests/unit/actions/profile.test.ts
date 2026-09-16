@@ -8,9 +8,9 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/supabase/server", () => ({ requireUser: vi.fn() }));
 
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 import { completeOnboarding, updateProfile } from "@/actions/profile";
 
@@ -30,9 +30,18 @@ function makeSupabase(updateResult: { error: { message: string } | null }) {
   return { from, update, eq, auth: { getUser } };
 }
 
+function mockRequireUser(supabase: ReturnType<typeof makeSupabase>) {
+  vi.mocked(requireUser).mockImplementation(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return { supabase, user } as never;
+  });
+}
+
 describe("updateProfile", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(redirect).mockClear();
     vi.mocked(revalidatePath).mockClear();
   });
@@ -47,12 +56,12 @@ describe("updateProfile", () => {
     const result = await updateProfile({}, formData);
 
     expect(result).toEqual({ error: "Name is required" });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 
   it("maps camelCase fields to the profiles columns and returns success", async () => {
     const supabase = makeSupabase({ error: null });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
     const formData = makeFormData({
       displayName: "Karim",
       timezone: "America/New_York",
@@ -75,7 +84,7 @@ describe("updateProfile", () => {
 
   it("returns an error and does not revalidate when the Supabase update fails", async () => {
     const supabase = makeSupabase({ error: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
     const formData = makeFormData({
       displayName: "Karim",
       timezone: "UTC",
@@ -93,7 +102,7 @@ describe("updateProfile", () => {
     supabase.auth.getUser = vi
       .fn()
       .mockResolvedValue({ data: { user: null } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
     const formData = makeFormData({
       displayName: "Karim",
       timezone: "UTC",
@@ -109,13 +118,13 @@ describe("updateProfile", () => {
 
 describe("completeOnboarding", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(redirect).mockClear();
   });
 
   it("saves the mapped fields and redirects to /today on success", async () => {
     const supabase = makeSupabase({ error: null });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
     const formData = makeFormData({
       displayName: "Karim",
       timezone: "UTC",

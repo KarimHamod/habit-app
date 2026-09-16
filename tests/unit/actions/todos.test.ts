@@ -2,9 +2,9 @@ import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
+vi.mock("@/lib/supabase/server", () => ({ requireUser: vi.fn() }));
 
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 import {
   createTodo,
@@ -53,9 +53,18 @@ function makeSupabase({
   };
 }
 
+function mockRequireUser(supabase: ReturnType<typeof makeSupabase>) {
+  vi.mocked(requireUser).mockImplementation(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return { supabase, user } as never;
+  });
+}
+
 describe("createTodo", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(revalidatePath).mockClear();
   });
 
@@ -63,7 +72,7 @@ describe("createTodo", () => {
     const result = await createTodo("   ");
 
     expect(result).toEqual({ error: "Title is required" });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 
   it("returns a validation error for a title over the max length", async () => {
@@ -72,12 +81,12 @@ describe("createTodo", () => {
     expect(result).toEqual({
       error: "Title must be at most 200 characters",
     });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 
   it("trims the title, inserts it for the authenticated user, and returns its id", async () => {
     const supabase = makeSupabase({ insertId: "new-todo-1" });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await createTodo("  Buy milk  ");
 
@@ -95,7 +104,7 @@ describe("createTodo", () => {
 
   it("returns an error and does not revalidate when unauthenticated", async () => {
     const supabase = makeSupabase({ getUserResult: { data: { user: null } } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await createTodo("Buy milk");
 
@@ -106,7 +115,7 @@ describe("createTodo", () => {
 
   it("returns an error when the insert fails", async () => {
     const supabase = makeSupabase({ insertError: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await createTodo("Buy milk");
 
@@ -116,7 +125,7 @@ describe("createTodo", () => {
 
   it("inserts a due date and time when both are given", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     await createTodo("Buy milk", "2026-09-20", "14:30");
 
@@ -130,7 +139,7 @@ describe("createTodo", () => {
 
   it("drops a due time given without a due date, without erroring", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await createTodo("Buy milk", null, "14:30");
 
@@ -147,26 +156,26 @@ describe("createTodo", () => {
     const result = await createTodo("Buy milk", "not-a-date");
 
     expect(result).toEqual({ error: "Invalid due date" });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed due time without contacting Supabase", async () => {
     const result = await createTodo("Buy milk", "2026-09-20", "25:99");
 
     expect(result).toEqual({ error: "Invalid due time" });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 });
 
 describe("toggleTodo", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(revalidatePath).mockClear();
   });
 
   it("sets done_at when marking done", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await toggleTodo("todo-1", true);
 
@@ -183,7 +192,7 @@ describe("toggleTodo", () => {
 
   it("clears done_at when marking not done", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     await toggleTodo("todo-1", false);
 
@@ -192,7 +201,7 @@ describe("toggleTodo", () => {
 
   it("returns an error when unauthenticated", async () => {
     const supabase = makeSupabase({ getUserResult: { data: { user: null } } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await toggleTodo("todo-1", true);
 
@@ -202,7 +211,7 @@ describe("toggleTodo", () => {
 
   it("returns an error when the update fails", async () => {
     const supabase = makeSupabase({ updateError: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await toggleTodo("todo-1", true);
 
@@ -212,13 +221,13 @@ describe("toggleTodo", () => {
 
 describe("parkTodo", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(revalidatePath).mockClear();
   });
 
   it("updates the parked flag for the authenticated user and revalidates", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await parkTodo("todo-1", true);
 
@@ -231,7 +240,7 @@ describe("parkTodo", () => {
 
   it("returns an error when the update fails", async () => {
     const supabase = makeSupabase({ updateError: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await parkTodo("todo-1", false);
 
@@ -241,13 +250,13 @@ describe("parkTodo", () => {
 
 describe("setTodoDueDate", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(revalidatePath).mockClear();
   });
 
   it("updates the due date and time for the authenticated user and revalidates", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await setTodoDueDate("todo-1", "2026-09-20", "14:30");
 
@@ -263,7 +272,7 @@ describe("setTodoDueDate", () => {
 
   it("clears both fields when passed null", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     await setTodoDueDate("todo-1", null);
 
@@ -274,12 +283,12 @@ describe("setTodoDueDate", () => {
     const result = await setTodoDueDate("todo-1", "not-a-date");
 
     expect(result).toEqual({ error: "Invalid due date" });
-    expect(createClient).not.toHaveBeenCalled();
+    expect(requireUser).not.toHaveBeenCalled();
   });
 
   it("returns an error when the update fails", async () => {
     const supabase = makeSupabase({ updateError: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await setTodoDueDate("todo-1", "2026-09-20");
 
@@ -289,13 +298,13 @@ describe("setTodoDueDate", () => {
 
 describe("deleteTodo", () => {
   beforeEach(() => {
-    vi.mocked(createClient).mockReset();
+    vi.mocked(requireUser).mockReset();
     vi.mocked(revalidatePath).mockClear();
   });
 
   it("deletes the row scoped to id and user, then revalidates", async () => {
     const supabase = makeSupabase();
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await deleteTodo("todo-1");
 
@@ -308,7 +317,7 @@ describe("deleteTodo", () => {
 
   it("returns an error when unauthenticated", async () => {
     const supabase = makeSupabase({ getUserResult: { data: { user: null } } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await deleteTodo("todo-1");
 
@@ -318,7 +327,7 @@ describe("deleteTodo", () => {
 
   it("returns an error when the delete fails", async () => {
     const supabase = makeSupabase({ deleteError: { message: "db down" } });
-    vi.mocked(createClient).mockResolvedValue(supabase as never);
+    mockRequireUser(supabase);
 
     const result = await deleteTodo("todo-1");
 

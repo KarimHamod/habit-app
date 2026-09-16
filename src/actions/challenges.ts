@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { challengeSchema } from "@/lib/challenges/validation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 export type ChallengeActionState = {
   error?: string;
@@ -23,10 +23,7 @@ export async function createChallenge(
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) redirect("/login");
 
   // Re-check ownership of every submitted habit id server-side — never
@@ -71,10 +68,7 @@ export async function createChallenge(
 }
 
 export async function cancelChallenge(challengeId: string): Promise<void> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) redirect("/login");
 
   await supabase

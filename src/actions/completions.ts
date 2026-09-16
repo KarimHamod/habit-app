@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { buildCompletionPayload } from "@/lib/habits/completion";
 import type { HabitType } from "@/lib/habits/types";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/supabase/server";
 
 export type CompletionActionResult = { success: true } | { error: string };
 
@@ -18,10 +18,7 @@ export async function completeHabit(
   const payload = buildCompletionPayload({ type, value, target });
   if ("error" in payload) return payload;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase.from("habit_completions").upsert(
@@ -46,10 +43,7 @@ export async function uncompleteHabit(
   habitId: string,
   date: string,
 ): Promise<CompletionActionResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await requireUser();
   if (!user) return { error: "Not signed in" };
 
   const { error } = await supabase
